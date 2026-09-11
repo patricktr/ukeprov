@@ -11,9 +11,17 @@ import {
 import { isAudioReady, playNote } from '../audio/engine'
 
 /**
- * The fretboard (PRD §5.1). Horizontal, first 7 frets, four strings, GCEA
- * top to bottom — the same order as fret-string notation, so "0003" reads
- * straight down the board.
+ * The fretboard (PRD §5.1). Horizontal, first 7 frets, four strings.
+ *
+ * Strings run A E C G from top to bottom: the view you get looking down at the
+ * instrument while holding it, where the G string is the one nearest you. Note
+ * this is the reverse of fret-string notation — "0003" is still G C E A, so the
+ * last digit is the top line here, not the bottom one.
+ *
+ * It agrees with the mini chord diagrams, which keep the universal chord-chart
+ * layout (neck upright, G C E A left to right): rotate one of those a quarter
+ * turn anticlockwise and the nut swings to the left, G falls to the bottom and
+ * A rises to the top — exactly this board.
  *
  * Fret spacing follows real scale-length maths rather than being evenly
  * divided, because a board with even frets looks wrong to anyone who has held
@@ -32,7 +40,13 @@ const RATIO = (n: number) => 1 - Math.pow(2, -n / 12)
 const SCALE = (END_X - NUT_X) / RATIO(FRET_COUNT)
 const fretX = (n: number) => NUT_X + SCALE * RATIO(n)
 
-const stringY = (s: number) => TOP_Y + s * STRING_GAP
+/**
+ * String index 0-3 is G C E A (fret-notation order); the board draws them
+ * bottom to top, so the G string sits nearest you the way it does on the
+ * instrument. Every dot, label and gauge is positioned through this one
+ * function, so the order lives in exactly one place.
+ */
+const stringY = (s: number) => TOP_Y + (3 - s) * STRING_GAP
 /** Dots sit between frets, where a finger actually goes. Open notes sit left of the nut. */
 const dotX = (fret: number) => (fret === 0 ? 64 : (fretX(fret - 1) + fretX(fret)) / 2)
 

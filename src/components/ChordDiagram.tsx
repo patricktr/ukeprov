@@ -8,6 +8,9 @@ import { parseFrets } from '../lib/music'
  * like, even though the main fretboard is horizontal. Switching orientation
  * between the two is not a mistake; it is the difference between "where this
  * note lives on the neck" and "what my hand does".
+ *
+ * The two do agree, though: rotate this a quarter turn anticlockwise and you
+ * get the main board, nut on the left and G along the bottom.
  */
 
 const FRETS_SHOWN = 4
