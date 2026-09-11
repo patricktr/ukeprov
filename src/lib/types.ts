@@ -1,4 +1,4 @@
-import type { QualityId } from './music'
+import { QUALITIES, type QualityId } from './music'
 
 /**
  * A voicing of a chord.
@@ -85,3 +85,14 @@ export interface PracticePrompt {
   /** Escalating, but not gamified: no streaks, no points (PRD §5.6). */
   level: 1 | 2 | 3
 }
+
+/**
+ * The compact name: "C", "Am", "Cmaj7", "B♭". Built from the root spelling plus
+ * the quality suffix, so it stays in sync with the dataset automatically.
+ *
+ * This is what belongs on the big display and in the vamp list — at arm's length
+ * from a music stand "Am" reads instantly and "A minor" does not, and the sketch
+ * in PRD §6 uses exactly this form.
+ */
+export const shortChordName = (chord: Pick<Chord, 'root' | 'quality'>) =>
+  chord.root + QUALITIES[chord.quality].suffix
