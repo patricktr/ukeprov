@@ -13,7 +13,7 @@
   --color-line-bright: #3b4552;
   --color-text: #e9edf3;
   --color-muted: #8d97a6;
-  --color-dim: #626d7e;
+  --color-dim: #808d9f;
 
   /* Interval roles (PRD §5.1): root strongest, 3rd next, 5th muted, 7th
      distinct. Colour is never the only channel — every dot carries its
@@ -23,7 +23,13 @@
   --color-role-fifth: #6ea8d8;
   --color-role-seventh: #a78bfa;
   --color-role-other: #7f8ea3;
-  --color-ghost: #39414e;
+  /* Measured, not guessed. --color-dim was #626d7e, which is 3.66:1 on the page
+     ground and 3.05:1 on a panel — both under the 4.5:1 AA floor, and it carries
+     real text (fret numbers, section headings, wiggle notation). The ghost dots
+     were #39414e at 1.64:1, effectively invisible. Both now clear their
+     thresholds while staying well below the chord tones at 9.2:1, so the
+     hierarchy the design depends on survives. */
+  --color-ghost: #5e6a80;
 
   --font-display: 'Inter', ui-sans-serif, system-ui, -apple-system, 'Segoe UI', sans-serif;
   --font-mono: ui-monospace, 'SF Mono', 'JetBrains Mono', Menlo, monospace;

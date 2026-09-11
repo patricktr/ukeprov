@@ -76,11 +76,16 @@ export class VampScheduler {
   private nextBeatTime = 0
   private nextBeat = 0
   private queue: ScheduledBeat[] = []
-  private listener: (state: VampState) => void
+  private listener: (state: VampState) => void = () => {}
   private lastEmitted = -Infinity
 
-  constructor(options: VampOptions, listener: (state: VampState) => void) {
+  constructor(options: VampOptions) {
     this.options = options
+  }
+
+  /** Set separately from the constructor so React can build this in a lazy
+   *  `useState` initialiser, before the setter it reports to exists. */
+  setListener(listener: (state: VampState) => void) {
     this.listener = listener
   }
 

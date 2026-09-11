@@ -1,0 +1,1181 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <meta name="color-scheme" content="light dark" />
+    <title>Wiggle Room — Build Roadmap</title>
+    <style>
+      :root {
+        color-scheme: light dark;
+        --bg: #f6f6f4;
+        --panel: #ffffff;
+        --ink: #14141a;
+        --muted: #6b6b78;
+        --line: #e3e3de;
+        --accent: #b45309;
+        --accent-soft: #fdf0dd;
+        --done: #16a34a;
+        --next: #d97706;
+        --planned: #94a3b8;
+        --shadow: 0 1px 2px rgba(20, 20, 26, 0.06), 0 8px 24px rgba(20, 20, 26, 0.06);
+        /* area palette — mirrors the tracks in the checklist */
+        --fretboard: #b45309;
+        --wiggles: #be123c;
+        --vamp: #6d28d9;
+        --dataset: #15803d;
+        --audio: #b91c1c;
+        --a11y: #0e7490;
+        --deploy: #1d4ed8;
+        --radius: 12px;
+        --font: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica,
+          Arial, sans-serif;
+        --mono: ui-monospace, SFMono-Regular, "SF Mono", Menlo, monospace;
+      }
+      @media (prefers-color-scheme: dark) {
+        :root {
+          --bg: #08080a;
+          --panel: #0e0e11;
+          --ink: #ece9e1;
+          --muted: #96938c;
+          --line: #22222a;
+          --accent: #ffb01f;
+          --accent-soft: #1e1710;
+          --shadow: 0 1px 2px rgba(0, 0, 0, 0.5), 0 10px 30px rgba(0, 0, 0, 0.4);
+          --fretboard: #f2a33c;
+          --wiggles: #ff5d73;
+          --vamp: #a78bfa;
+          --dataset: #4ade80;
+          --audio: #f0564e;
+          --a11y: #22d3ee;
+          --deploy: #5b9df9;
+        }
+      }
+      * { box-sizing: border-box; }
+      html { scroll-behavior: smooth; }
+      body {
+        margin: 0;
+        font-family: var(--font);
+        color: var(--ink);
+        background: var(--bg);
+        line-height: 1.55;
+        -webkit-font-smoothing: antialiased;
+      }
+      .wrap { max-width: 1000px; margin: 0 auto; padding: 0 20px 80px; }
+
+      header.hero {
+        background:
+          radial-gradient(1200px 240px at 15% -40%, var(--accent-soft), transparent),
+          var(--panel);
+        border-bottom: 1px solid var(--line);
+        padding: 40px 0 28px;
+        margin-bottom: 28px;
+      }
+      .hero-inner { max-width: 1000px; margin: 0 auto; padding: 0 20px; }
+      .wordmark { display: flex; align-items: center; gap: 12px; }
+      .wordmark .logo {
+        display: inline-flex; gap: 4px; align-items: center;
+        padding: 6px 8px; border-radius: 8px; background: var(--ink);
+      }
+      .wordmark .logo span { width: 8px; height: 18px; border-radius: 2px; display: block; }
+      .wordmark h1 { font-size: 26px; margin: 0; letter-spacing: -0.02em; }
+      .hero p.tagline { color: var(--muted); margin: 6px 0 0; font-size: 15px; max-width: 74ch; }
+      .meta { margin-top: 14px; font-size: 13px; color: var(--muted); }
+
+      .legend { display: flex; flex-wrap: wrap; gap: 14px; margin-top: 16px; font-size: 12.5px; }
+      .legend .item { display: inline-flex; align-items: center; gap: 6px; color: var(--muted); }
+      .dot { width: 10px; height: 10px; border-radius: 50%; display: inline-block; }
+
+      h2.section { font-size: 19px; margin: 38px 0 14px; letter-spacing: -0.01em; }
+      h2.section .num {
+        display: inline-grid; place-items: center; width: 24px; height: 24px;
+        font-size: 13px; border-radius: 7px; background: var(--accent-soft);
+        color: var(--accent); margin-right: 9px; vertical-align: 2px;
+      }
+      p.lead { color: var(--muted); margin: 0 0 18px; max-width: 84ch; }
+      code { font-family: var(--mono); font-size: 0.9em; background: var(--accent-soft);
+        color: var(--accent); padding: 1px 5px; border-radius: 5px; overflow-wrap: anywhere; }
+
+      .chip {
+        font-size: 11px; font-weight: 600; text-transform: uppercase;
+        letter-spacing: 0.04em; padding: 2px 8px; border-radius: 999px;
+        border: 1px solid var(--line); color: var(--muted); white-space: nowrap;
+      }
+
+      /* phase cards */
+      .phase {
+        background: var(--panel); border: 1px solid var(--line);
+        border-radius: var(--radius); box-shadow: var(--shadow);
+        padding: 18px 20px; margin-bottom: 16px;
+      }
+      .phase > summary { list-style: none; cursor: pointer; }
+      .phase > summary::-webkit-details-marker { display: none; }
+      .phase-head { display: flex; align-items: center; gap: 12px; flex-wrap: wrap; }
+      .phase-head .ph-title { font-size: 16px; font-weight: 650; margin: 0; flex: 1; min-width: 200px; }
+      .phase-head .ph-kicker { font-size: 12px; font-weight: 600;
+        text-transform: uppercase; letter-spacing: 0.05em; }
+      .progress { height: 7px; background: var(--line); border-radius: 999px; overflow: hidden; margin: 12px 0 4px; }
+      .progress > i { display: block; height: 100%; width: 0; background: var(--done); transition: width 0.25s ease; }
+      .progress-label { font-size: 12px; color: var(--muted); }
+
+      ul.items { list-style: none; padding: 0; margin: 14px 0 2px; }
+      ul.items li { display: flex; align-items: flex-start; gap: 10px; padding: 9px 0; border-top: 1px dashed var(--line); }
+      ul.items li:first-child { border-top: none; }
+      ul.items input[type="checkbox"] { margin-top: 3px; width: 16px; height: 16px; accent-color: var(--accent); cursor: pointer; flex: none; }
+      .item-body { flex: 1; min-width: 0; }
+      .item-title { font-weight: 550; }
+      .item-note { font-size: 13px; color: var(--muted); }
+
+      /* The chevron is gated on [aria-expanded], which only JS ever sets, so the
+         no-JS rendering stays honest: no chevron, no pointer, notes all visible. */
+      .item-toggle[aria-expanded] { cursor: pointer; }
+      .item-toggle[aria-expanded]::before {
+        content: "\25B8";
+        display: inline-block; width: 13px; margin-right: 2px;
+        font-size: 15px; line-height: 1; color: var(--muted);
+        transition: transform 0.15s ease;
+      }
+      .item-toggle[aria-expanded="true"]::before { transform: rotate(90deg); }
+      .item-toggle[aria-expanded]:hover::before { color: var(--accent); }
+      .item-toggle:focus-visible, .tag:focus-visible, .lvl:focus-visible, .jump:focus-visible {
+        outline: 2px solid var(--accent); outline-offset: 3px; border-radius: 3px;
+      }
+      .item-note b { color: var(--ink); font-weight: 600; }
+      .item-note ol { margin: 4px 0 0; padding-left: 20px; }
+      .item-note ol li { display: list-item; padding: 1px 0; border: none; }
+      .spec { display: block; margin-top: 4px; }
+
+      .tag { font: inherit; font-size: 11px; padding: 1px 7px; border-radius: 6px; border: 1px solid transparent;
+        background: var(--accent-soft); color: var(--accent); margin-left: 6px; white-space: nowrap; }
+      .tag.ok { background: color-mix(in srgb, var(--done) 18%, transparent); color: var(--done); }
+      .tag.p0 { background: color-mix(in srgb, var(--audio) 20%, transparent); color: var(--audio); font-weight: 700; }
+      .tag.verify { background: color-mix(in srgb, var(--next) 18%, transparent); color: var(--next); }
+      .tag.plain { background: color-mix(in srgb, var(--planned) 22%, transparent); color: var(--muted); }
+
+      li.checked .item-toggle { text-decoration: line-through; color: var(--muted); }
+
+      /* A role="button" may not contain focusable descendants, so this wraps the
+         title text alone and the tags are siblings. */
+      .item-toggle { font: inherit; color: inherit; background: none; border: 0; padding: 0;
+        margin: 0; text-align: left; cursor: pointer; display: inline; }
+
+      .lvl { font: inherit; font-size: 10px; font-weight: 700; text-transform: uppercase; letter-spacing: 0.04em;
+        padding: 1px 6px; border-radius: 6px; border: 1px solid transparent; margin-left: 6px;
+        white-space: nowrap; vertical-align: 1px; }
+      .lvl-easy { background: color-mix(in srgb, var(--done) 16%, transparent); color: var(--done); }
+      .lvl-med  { background: color-mix(in srgb, var(--next) 16%, transparent); color: var(--next); }
+      .lvl-hard { background: color-mix(in srgb, var(--audio) 16%, transparent); color: var(--audio); }
+      .lvl-epic { background: color-mix(in srgb, var(--vamp) 18%, transparent); color: var(--vamp); }
+
+      /* 1px probe above the toolbar. An IntersectionObserver watches it instead
+         of a scroll listener; negative margin so it costs no layout height. */
+      .toolbar-sentinel { height: 1px; margin-bottom: -1px; }
+
+      .toolbar { position: sticky; top: 0; z-index: 50;
+        margin: 0 0 10px; padding: 11px 14px; background: var(--panel); border: 1px solid var(--line);
+        border-radius: var(--radius); box-shadow: var(--shadow); font-size: 13px;
+        display: flex; flex-direction: column; align-items: stretch; gap: 9px; }
+      /* Pinned state changes no box dimension: a sticky element keeps its space
+         in normal flow, so altering its height here would shove the list below
+         it up or down at the exact moment it sticks. */
+      .toolbar.is-stuck { border-top-left-radius: 0; border-top-right-radius: 0;
+        border-top-color: transparent;
+        box-shadow: 0 1px 2px rgba(20, 20, 26, 0.08), 0 10px 26px rgba(20, 20, 26, 0.16); }
+      .toolbar-row { display: flex; flex-wrap: wrap; align-items: center; gap: 10px 14px; }
+      .toolbar .switch { display: inline-flex; align-items: center; gap: 7px; cursor: pointer; user-select: none; font-weight: 550; }
+      .toolbar .switch input { width: 16px; height: 16px; accent-color: var(--accent); cursor: pointer; }
+      .sp { flex: 1 1 auto; }
+      .toolbar-row button, .header-actions button {
+        font: inherit; font-size: 12.5px; color: var(--ink); background: var(--bg);
+        border: 1px solid var(--line); border-radius: 8px; padding: 5px 11px; cursor: pointer; }
+      .toolbar-row button:hover:not(:disabled), .header-actions button:hover { border-color: var(--accent); color: var(--accent); }
+      .toolbar-row button:disabled { opacity: 0.4; cursor: default; }
+      .filter-count { color: var(--muted); font-size: 12px; }
+
+      .filter-bar { display: flex; flex-wrap: wrap; align-items: center; gap: 6px;
+        border-top: 1px dashed var(--line); padding-top: 9px; }
+      .filter-bar .facet-label { font-size: 10.5px; text-transform: uppercase; letter-spacing: 0.08em;
+        color: var(--muted); margin: 0 2px 0 6px; }
+      .filter-bar .facet-label:first-child { margin-left: 0; }
+      .filter-bar .tag, .filter-bar .lvl { margin-left: 0; }
+
+      /* A ring rather than a colour change: each chip already uses colour to say
+         which tag it is, so recolouring for selection would collide with that. */
+      .tag[aria-pressed="true"], .lvl[aria-pressed="true"] {
+        border-color: currentColor; box-shadow: 0 0 0 2px color-mix(in srgb, currentColor 22%, transparent); }
+      .tag[aria-pressed], .lvl[aria-pressed] { cursor: pointer; }
+      .tag[aria-pressed]:hover, .lvl[aria-pressed]:hover { border-color: currentColor; }
+
+      /* Has to out-specify `ul.items li { display: flex }` above — a bare
+         `li.filtered-out` scores (0,1,1) against that rule's (0,1,2) and loses,
+         which leaves the class applied and every row still on screen. */
+      ul.items > li.filtered-out { display: none; }
+      details.phase.filtered-empty { display: none; }
+
+      .header-actions { display: flex; flex-wrap: wrap; align-items: center; gap: 8px; margin-top: 18px; }
+      .jump { display: inline-flex; align-items: center; gap: 6px; font-size: 13px; font-weight: 600;
+        color: var(--accent); text-decoration: none; border: 1px solid color-mix(in srgb, var(--accent) 40%, transparent);
+        background: var(--accent-soft); border-radius: 8px; padding: 6px 12px; }
+      .jump:hover { border-color: var(--accent); }
+      .sync-hint { color: var(--muted); font-size: 12px; margin: 8px 0 0; line-height: 1.5; }
+      .filter-empty { color: var(--muted); font-size: 13.5px; line-height: 1.6; background: var(--panel);
+        border: 1px dashed var(--line); border-radius: var(--radius); padding: 16px 18px; margin: 0 0 18px; }
+      .linkish { font: inherit; color: var(--accent); background: none; border: 0; padding: 0;
+        text-decoration: underline; cursor: pointer; }
+
+      /* The sticky bar covers the top of the viewport, so an anchor jump would
+         otherwise land the heading underneath it. */
+      #checklist { scroll-margin-top: 110px; }
+
+      body.hide-done ul.items li.checked { display: none; }
+
+      .table-scroll { overflow-x: auto; border: 1px solid var(--line); border-radius: var(--radius); box-shadow: var(--shadow); }
+      table { border-collapse: collapse; width: 100%; font-size: 13.5px; background: var(--panel); }
+      th, td { text-align: left; padding: 10px 12px; border-bottom: 1px solid var(--line); vertical-align: top; }
+      th { background: color-mix(in srgb, var(--accent-soft) 50%, var(--panel)); font-size: 12px; text-transform: uppercase; letter-spacing: 0.03em; color: var(--muted); }
+      tr:last-child td { border-bottom: none; }
+      td strong { color: var(--ink); }
+      td code { white-space: nowrap; }
+
+      .principles { background: var(--accent-soft); border: 1px solid var(--line); border-radius: var(--radius); padding: 16px 20px; }
+      .principles ul { margin: 8px 0 0; padding-left: 18px; }
+      .principles li { margin: 4px 0; }
+
+      .alert { border-left: 3px solid var(--audio); background: var(--panel); border-radius: var(--radius);
+        border-top: 1px solid var(--line); border-right: 1px solid var(--line); border-bottom: 1px solid var(--line);
+        padding: 14px 18px; box-shadow: var(--shadow); margin-bottom: 18px; }
+      .alert h4 { margin: 0 0 6px; font-size: 14.5px; color: var(--audio); }
+      .alert p { margin: 0; font-size: 13.5px; color: var(--muted); }
+      .alert.resolved { border-left-color: var(--done); }
+      .alert.resolved h4 { color: var(--done); }
+
+      footer { margin-top: 40px; padding-top: 18px; border-top: 1px solid var(--line); font-size: 12.5px; color: var(--muted); }
+      footer a { color: var(--accent); }
+      .src { display: flex; flex-wrap: wrap; gap: 8px 16px; margin-top: 6px; }
+    </style>
+  </head>
+  <body>
+    <header class="hero">
+      <div class="hero-inner">
+        <div class="wordmark">
+          <span class="logo" aria-hidden="true">
+            <span style="background: #ffb01f"></span>
+            <span style="background: #ff5d73"></span>
+            <span style="background: #a78bfa"></span>
+          </span>
+          <h1>Wiggle Room — Build Roadmap</h1>
+        </div>
+        <p class="tagline">
+          A ukulele improv trainer, built from
+          <code>ukulele-improv-prd.md</code>. The gap it closes has three parts —
+          not knowing where the notes inside a chord live, not knowing the one-finger
+          variations that add motion without leaving the shape, and having nothing to
+          play against. Every item below names the <strong>PRD section</strong> it
+          comes from, what was <strong>actually measured</strong> rather than assumed,
+          and the <strong>order to fix it in</strong> when it fails.
+        </p>
+        <div class="meta">Last updated September 11, 2026 · checkmarks save per-browser; the committed file is the shared baseline</div>
+        <div class="legend">
+          <span class="item"><span class="dot" style="background: var(--fretboard)"></span>Fretboard</span>
+          <span class="item"><span class="dot" style="background: var(--wiggles)"></span>Wiggles</span>
+          <span class="item"><span class="dot" style="background: var(--vamp)"></span>Vamp</span>
+          <span class="item"><span class="dot" style="background: var(--dataset)"></span>Dataset</span>
+          <span class="item"><span class="dot" style="background: var(--audio)"></span>Audio</span>
+          <span class="item"><span class="dot" style="background: var(--a11y)"></span>Accessibility</span>
+          <span class="item"><span class="dot" style="background: var(--deploy)"></span>Deploy</span>
+        </div>
+
+        <!-- Everything between here and the list is read once and scrolled past
+             forever after, so the jump link earns its place. The sync buttons sit
+             up here rather than in the sticky bar because they are used rarely,
+             and the bar's width is better spent on the tag filters. -->
+        <div class="header-actions">
+          <a class="jump" href="#checklist">Jump to the checklist <span aria-hidden="true">↓</span></a>
+          <span class="sp"></span>
+          <button id="btn-export" type="button" title="Copy your checkmarks to share">Copy progress</button>
+          <button id="btn-import" type="button" title="Paste a shared snapshot">Paste progress</button>
+          <button id="btn-reset" type="button" title="Clear local ticks; show the state saved in the file">Reset to file</button>
+        </div>
+        <p class="sync-hint">Checkmarks live in your browser. The committed file is the shared source of truth — use <strong>Copy progress</strong> to sync between browsers or hand the snapshot to Claude to bake in.</p>
+      </div>
+    </header>
+
+    <div class="wrap">
+      <!-- PRINCIPLES -->
+      <h2 class="section">How to run this list</h2>
+      <div class="principles">
+        <ul>
+          <li><strong>The sentence under the wiggle is the product.</strong> The fret shapes could be generated by anyone with a calculator. "Lift the pinky. Suddenly it's airy." could not. When an item trades dataset breadth against note quality, quality wins.</li>
+          <li><strong>Chord tones are the skill; scales are the filler.</strong> Anything that makes the scale overlay compete with the chord tones for attention is a regression, however nice it looks.</li>
+          <li><strong>Measure it, don't assert it.</strong> Every number in this document came out of a tool. Where something is unverified it says so, and the item stays open.</li>
+          <li><strong>The avoid-list is load-bearing.</strong> PRD §5.5: "the feature that keeps me actually using the thing instead of hitting a wall on preset #3." A change that quietly makes an avoided chord reachable is a bug, not a convenience.</li>
+          <li><strong>Ship-blockers vs. day-two.</strong> <span class="tag p0">P0</span> items are what the PRD marks as such in §5. Everything else can land later without the tool being less useful than what preceded it.</li>
+        </ul>
+      </div>
+
+      <!-- LANDSCAPE -->
+      <h2 class="section">What already exists, and why it isn't enough</h2>
+      <p class="lead">
+        PRD §1: "Every existing tool solves one of these in isolation… None of them
+        connect the chord I'm playing to the notes I should aim for to the loop I'm
+        playing over." Worth keeping visible, because every one of these is better at
+        its own single job than this is — the whole bet is on the join.
+      </p>
+      <div class="table-scroll">
+        <table>
+          <thead>
+            <tr><th>Kind of tool</th><th>What it does well</th><th>What it leaves you holding</th></tr>
+          </thead>
+          <tbody>
+            <tr>
+              <td><strong>Chord dictionaries</strong><br /><span style="font-size:12px">Ukulele-chords.com, ChordBuddy</span></td>
+              <td>Exhaustive shape coverage, every inversion, every key. Far more chords than this has.</td>
+              <td>A shape and nothing else. No sense of which note inside it is doing the work, and no reason to play anything but the block.</td>
+            </tr>
+            <tr>
+              <td><strong>Scale diagrams</strong><br /><span style="font-size:12px">Fretboard trainers, ScaleGen</span></td>
+              <td>Shows you every note in a key across the whole neck.</td>
+              <td>Scales are undifferentiated — seven notes, all equal. Nothing says the 3rd is the one that makes the chord change audible.</td>
+            </tr>
+            <tr>
+              <td><strong>Backing tracks</strong><br /><span style="font-size:12px">YouTube channels, iReal Pro</span></td>
+              <td>Excellent audio, huge libraries, real feel.</td>
+              <td>Nothing on screen. You play over it with no idea what you're aiming at, which is the situation the PRD opens by describing.</td>
+            </tr>
+            <tr>
+              <td><strong>Full courses</strong><br /><span style="font-size:12px">Ukulele Underground, Fretboard&nbsp;Fb</span></td>
+              <td>Structure, sequencing, a human telling you you're doing it wrong.</td>
+              <td>A curriculum you have to show up for. PRD §3 rules this out explicitly — "no lessons, no course, no video."</td>
+            </tr>
+            <tr>
+              <td><strong>This</strong></td>
+              <td>One screen holding the chord tones, the wiggles and the loop at once, with an avoid-list so a chord you can't play yet doesn't end the session.</td>
+              <td>A small hand-authored dataset — 32 chords, seven keys. Anything outside that isn't there.</td>
+            </tr>
+          </tbody>
+        </table>
+      </div>
+
+      <!-- DATASET COVERAGE -->
+      <h2 class="section">Dataset coverage</h2>
+      <p class="lead">
+        PRD §7 scopes v1 to "every chord in the keys of C, F, G, D, A minor, E minor,
+        D minor… roughly 25 chords with 2–5 wiggles each." Shipped at 32 chords and 79
+        wiggles. <code>pnpm test</code> asserts this table stays true.
+      </p>
+      <div class="table-scroll">
+        <table>
+          <thead>
+            <tr><th>Key</th><th>Diatonic chords</th><th>Plus</th><th>Awkward one</th></tr>
+          </thead>
+          <tbody>
+            <tr><td><strong>C major</strong></td><td>C Dm Em F G Am Bdim</td><td>Cmaj7 C7 Dm7 Em7 Fmaj7 G7 Am7 A7</td><td>Bdim → G7</td></tr>
+            <tr><td><strong>F major</strong></td><td>F Gm Am B♭ C Dm Edim</td><td>Fmaj7 Gm7 Am7 B♭maj7 C7 Dm7</td><td>B♭ → B♭maj7</td></tr>
+            <tr><td><strong>G major</strong></td><td>G Am Bm C D Em F♯dim</td><td>Gmaj7 Am7 Bm7 Cmaj7 D7 Em7</td><td>Bm → Bm7</td></tr>
+            <tr><td><strong>D major</strong></td><td>D Em F♯m G A Bm C♯dim</td><td>D7 Em7 Gmaj7 A7 Bm7</td><td>F♯m → A</td></tr>
+            <tr><td><strong>A minor</strong></td><td>Am Bdim C Dm Em F G</td><td>E7 as the V, Am7 Cmaj7 Dm7 Fmaj7</td><td>E → E7</td></tr>
+            <tr><td><strong>E minor</strong></td><td>Em F♯dim G Am Bm C D</td><td>B7 as the V, Em7 Gmaj7 Bm7</td><td>Bm → Bm7</td></tr>
+            <tr><td><strong>D minor</strong></td><td>Dm Edim F Gm Am B♭ C</td><td>A7 as the V, Dm7 Gm7 Fmaj7</td><td>Edim → C7</td></tr>
+          </tbody>
+        </table>
+      </div>
+
+      <!-- INTERVAL COLOUR KEY -->
+      <h2 class="section">Interval colour key</h2>
+      <p class="lead">
+        PRD §5.1: "root strongest, 3rd next… 5th muted, 7th distinct." Colour is never
+        the only channel — every dot carries its interval as text — but the contrast
+        ratios are still measured, because the labels sit <em>on</em> these colours.
+      </p>
+      <div class="table-scroll">
+        <table>
+          <thead>
+            <tr><th>Role</th><th>Colour</th><th>Dot</th><th>Label contrast</th><th>Why</th></tr>
+          </thead>
+          <tbody>
+            <tr><td><strong>Root</strong></td><td><code>#ffb01f</code></td><td>18px, brightest</td><td>9.81:1</td><td>Home. Biggest and warmest so it reads first at arm's length.</td></tr>
+            <tr><td><strong>3rd / ♭3</strong></td><td><code>#ff5d73</code></td><td>17px</td><td>6.04:1</td><td>The note that makes the chord major or minor — the one worth aiming at.</td></tr>
+            <tr><td><strong>5th</strong></td><td><code>#6ea8d8</code></td><td>14px, recessive</td><td>7.06:1</td><td>Safe but says nothing. Deliberately the quietest of the four.</td></tr>
+            <tr><td><strong>7th</strong></td><td><code>#a78bfa</code></td><td>15.5px</td><td>6.60:1</td><td>Distinct hue so a dominant 7 reads differently from a major triad at a glance.</td></tr>
+            <tr><td><strong>Scale ghost</strong></td><td><code>#5e6a80</code></td><td>8px, no label</td><td>3.09:1 on board</td><td>Connective tissue. Visible, but 3× dimmer than a chord tone so it can't be mistaken for a target.</td></tr>
+          </tbody>
+        </table>
+      </div>
+
+      <h2 class="section" id="checklist">The checklist</h2>
+      <p class="lead">
+        Phases 1–3 follow PRD §9. Phase 4 is the §10 open questions. Phase 5 is
+        everything found while building that the PRD could not have known about, and
+        Phase 6 is getting it online.
+      </p>
+
+      <div class="toolbar-sentinel" aria-hidden="true"></div>
+      <div class="toolbar">
+        <div class="toolbar-row">
+          <label class="switch"><input type="checkbox" id="toggle-hide-done" /> Hide completed</label>
+          <button id="btn-expand" type="button" title="Open every item's detail">Show all detail</button>
+          <button id="btn-collapse" type="button" title="Close every item's detail">Hide all detail</button>
+          <span class="sp"></span>
+          <!-- Always rendered, disabled when nothing is active: showing and hiding
+               it would change the bar's height, and a sticky element keeps its
+               space in normal flow, so the list below would jump. -->
+          <span class="filter-count" id="filter-count" aria-live="polite"></span>
+          <button id="btn-clear-filters" type="button" disabled title="Clear every tag filter">Clear filters</button>
+        </div>
+        <!-- Built by JS from the tags actually in the document, so it cannot drift
+             out of step with the list the way a hand-written palette would. -->
+        <div class="filter-bar" id="filter-bar" role="group" aria-label="Filter items by tag"></div>
+      </div>
+      <!-- Without this, a combination matching nothing hides every phase and leaves
+           a blank page under the bar, which reads as broken rather than empty. -->
+      <p class="filter-empty" id="filter-empty" hidden>
+        No items carry that combination of tags. Tags of the <em>same</em> kind widen the
+        result; tags of <em>different</em> kinds have to all hold at once.
+        <button type="button" class="linkish" id="btn-clear-filters-2">Clear the filters</button>
+      </p>
+
+      <!-- ============ 1 · THE REFERENCE ============ -->
+      <details class="phase" open>
+        <summary>
+          <div class="phase-head">
+            <span class="ph-kicker" style="color: var(--fretboard)">1 · The reference</span>
+            <p class="ph-title">Fretboard, chord tones, wiggles, avoid-list — PRD §9 Phase 1</p>
+          </div>
+        </summary>
+        <div class="progress"><i></i></div>
+        <div class="progress-label"></div>
+        <ul class="items">
+          <li><input type="checkbox" data-id="fb-board" checked /><div class="item-body"><span class="item-title"><button type="button" class="item-toggle">1.1 — Horizontal fretboard, first 7 frets, GCEA</button> <button type="button" class="tag p0" data-facet="priority" data-val="P0" aria-pressed="false">P0</button> <button type="button" class="tag ok" data-facet="status" data-val="shipped" aria-pressed="false">shipped</button> <button type="button" class="lvl lvl-med" data-facet="effort" data-val="Medium" aria-pressed="false">Medium</button></span><div class="item-note">
+            <em><b>Shipped.</b> SVG in <code>src/components/Fretboard.tsx</code>, drawn entirely from the tuning plus fret arithmetic — no hardcoded positions anywhere, per PRD §7.</em>
+            <b>Fret spacing follows real scale-length maths</b> rather than being evenly divided: the distance from nut to fret <em>n</em> is <code>L(1 − 2^(−n/12))</code>. Seven frets is a third of the scale, so the taper is visible. An evenly-divided board looks wrong to anyone who has held the instrument, and it costs one line of arithmetic to be right.
+            <b>Strings run GCEA top to bottom</b>, matching fret-string notation — so <code>0003</code> reads straight down the board and the mini diagrams in the wiggle cards use the same order.
+            <span class="spec"><b>Tool:</b> the app itself at <code>pnpm dev</code>; screenshot rather than trusting the DOM.</span>
+          </div></div></li>
+
+          <li><input type="checkbox" data-id="fb-intervals" checked /><div class="item-body"><span class="item-title"><button type="button" class="item-toggle">1.2 — Dots labelled by interval, coloured by role</button> <button type="button" class="tag p0" data-facet="priority" data-val="P0" aria-pressed="false">P0</button> <button type="button" class="tag ok" data-facet="status" data-val="shipped" aria-pressed="false">shipped</button> <button type="button" class="lvl lvl-easy" data-facet="effort" data-val="Easy" aria-pressed="false">Easy</button></span><div class="item-note">
+            <em><b>Shipped.</b> R / 3 / ♭3 / 5 / ♭7 / 7 as text on the dot, with note names behind a toggle. Root is 18px and brightest, the 3rd 17px, the 5th 14px and recessive, the 7th 15.5px in a distinct hue — the hierarchy PRD §5.1 asks for, expressed in size as well as colour.</em>
+            <b>Colour is never the only channel.</b> Every dot carries its interval as text, so the board reads correctly in greyscale and for any colour vision. That is what makes the palette a legitimate choice rather than a risk — see the colour key above for the measured ratios.
+          </div></div></li>
+
+          <li><input type="checkbox" data-id="fb-ghosts" checked /><div class="item-body"><span class="item-title"><button type="button" class="item-toggle">1.3 — Grey ghost dots for the rest of the parent scale</button> <button type="button" class="tag p0" data-facet="priority" data-val="P0" aria-pressed="false">P0</button> <button type="button" class="tag ok" data-facet="status" data-val="shipped" aria-pressed="false">shipped</button> <button type="button" class="lvl lvl-easy" data-facet="effort" data-val="Easy" aria-pressed="false">Easy</button></span><div class="item-note">
+            <em><b>Shipped.</b> The parent scale is derived from the chord quality rather than the key — major for a major triad, mixolydian for a dominant 7, dorian for a minor 7, locrian for a diminished. So the ghosts describe the chord you are actually on, not the key you nominally started in.</em>
+            <b>Ghosts hide entirely when an interval is isolated.</b> "Show me only the 3rds" means only the 3rds; leaving the scale up underneath defeats the drill.
+          </div></div></li>
+
+          <li><input type="checkbox" data-id="fb-tuning" checked /><div class="item-body"><span class="item-title"><button type="button" class="item-toggle">1.4 — High-G / low-G toggle</button> <button type="button" class="tag p0" data-facet="priority" data-val="P0" aria-pressed="false">P0</button> <button type="button" class="tag ok" data-facet="status" data-val="shipped" aria-pressed="false">shipped</button> <button type="button" class="lvl lvl-med" data-facet="effort" data-val="Medium" aria-pressed="false">Medium</button></span><div class="item-note">
+            <em><b>Shipped, and it revealed that the PRD is half-wrong about this — see 5.2.</b> Default high-G, as specified. Everything downstream of the tuning recomputes: playback pitch, the open-string register line, the string gauges drawn on the board, and the "lowest note" readout under each shape.</em>
+            <b>The 4th string is drawn fatter in low-G</b> (3.6px vs 2.1px), because it is a wound string there and a thin reentrant one in high-G. That makes the toggle legible at a glance rather than being a setting you have to remember you changed.
+            <span class="spec"><b>Verified:</b> toggling in the browser moves the open-string line from <code>G4 C4 E4 A4</code> to <code>G3 C4 E4 A4</code>, and the chord-tone dot count stays at 9 — which is the finding in 5.2.</span>
+          </div></div></li>
+
+          <li><input type="checkbox" data-id="fb-hover" checked /><div class="item-body"><span class="item-title"><button type="button" class="item-toggle">1.5 — Hovering or tapping a dot plays that note</button> <button type="button" class="tag p0" data-facet="priority" data-val="P0" aria-pressed="false">P0</button> <button type="button" class="tag ok" data-facet="status" data-val="shipped" aria-pressed="false">shipped</button> <button type="button" class="lvl lvl-med" data-facet="effort" data-val="Medium" aria-pressed="false">Medium</button></span><div class="item-note">
+            <em><b>Shipped, with one deliberate asymmetry.</b> Tapping always plays — a pointer-down is a user gesture, so it can open the AudioContext. Hovering only plays once audio is already running, because browsers will not start an AudioContext on hover and a dot that sometimes makes noise is worse than one that reliably doesn't.</em>
+            <b>Re-entering the same dot inside 140ms is ignored</b>, so a jittery mouse doesn't retrigger. Sweeping across the board deliberately arpeggiates, which is the behaviour §5.1 describes.
+            <b>Keyboard reaches them too:</b> chord-tone dots are focusable and play on Enter or Space. Ghost dots are not in the tab order — roughly fifty extra tab stops to reach scale context would make the board unusable with a keyboard.
+          </div></div></li>
+
+          <li><input type="checkbox" data-id="ct-browser" checked /><div class="item-body"><span class="item-title"><button type="button" class="item-toggle">1.6 — Chord tone browser with a plain-text summary</button> <button type="button" class="tag p0" data-facet="priority" data-val="P0" aria-pressed="false">P0</button> <button type="button" class="tag ok" data-facet="status" data-val="shipped" aria-pressed="false">shipped</button> <button type="button" class="lvl lvl-easy" data-facet="effort" data-val="Easy" aria-pressed="false">Easy</button></span><div class="item-note">
+            <em><b>Shipped.</b> Reads exactly as §5.2 asks: "C major: C E G — nine places in the first seven frets." The count is computed, and it changes with the tuning and the fret window rather than being a sentence someone typed once.</em>
+            <b>Chord tones are derived from root + quality, never stored.</b> The PRD's §7 sketch has a <code>tones</code> field; this drops it, for the same reason §7 itself gives for computing fret positions. Two copies of the same fact is just somewhere for them to disagree.
+          </div></div></li>
+
+          <li><input type="checkbox" data-id="ct-isolate" checked /><div class="item-body"><span class="item-title"><button type="button" class="item-toggle">1.7 — Isolate one interval at a time</button> <button type="button" class="tag p0" data-facet="priority" data-val="P0" aria-pressed="false">P0</button> <button type="button" class="tag ok" data-facet="status" data-val="shipped" aria-pressed="false">shipped</button> <button type="button" class="lvl lvl-easy" data-facet="effort" data-val="Easy" aria-pressed="false">Easy</button></span><div class="item-note">
+            <em><b>Shipped.</b> One button per chord tone, each carrying its own count — "there are only two 3rds down here" is itself the useful fact, so it goes on the button rather than being something you work out by squinting.</em>
+            <span class="spec"><b>Verified in the browser:</b> with "3" active, exactly the three 3rd dots sit at opacity 1 and the other six at 0.16, with every ghost hidden. Checked by reading the rendered attributes, because a screenshot at 55% scale could not have told them apart.</span>
+          </div></div></li>
+
+          <li><input type="checkbox" data-id="wg-library" checked /><div class="item-body"><span class="item-title"><button type="button" class="item-toggle">1.8 — Wiggle library as a card deck</button> <button type="button" class="tag p0" data-facet="priority" data-val="P0" aria-pressed="false">P0</button> <button type="button" class="tag ok" data-facet="status" data-val="shipped" aria-pressed="false">shipped</button> <button type="button" class="lvl lvl-hard" data-facet="effort" data-val="Hard" aria-pressed="false">Hard</button></span><div class="item-note">
+            <em><b>Shipped.</b> §5.3 is explicit that this "should feel like flipping through a card deck, not reading a table", so: one card per wiggle, everything on its face, nothing behind a disclosure triangle. Notation, a mini diagram per position, the sentence, a play button.</em>
+            <b>The moving finger is picked out in amber</b> on each diagram — the string that changed from the previous step. That is the entire pedagogical content of a wiggle, and before it was highlighted you had to diff two diagrams by eye.
+            <b>Diagrams are vertical while the main board is horizontal,</b> deliberately. They answer different questions: the board is "where does this note live on the neck", the diagram is "what does my hand do". Every chord chart ever printed uses the vertical form and fighting that would help nobody.
+            <b>Play is tempo-linked</b> — one step per beat at the current BPM, floored at 450ms — so a wiggle browsed here feels like the thing you will play over the loop.
+            <span class="spec"><b>Fixed after looking at it:</b> a four-step wiggle overflowed its card by about nine pixels and wrapped the last diagram onto its own line. Diagram padding 12px → 9px and the gaps 6px → 4px; all four now sit in one row.</span>
+          </div></div></li>
+
+          <li><input type="checkbox" data-id="av-list" checked /><div class="item-body"><span class="item-title"><button type="button" class="item-toggle">1.9 — Avoid-list with substitutions</button> <button type="button" class="tag p0" data-facet="priority" data-val="P0" aria-pressed="false">P0</button> <button type="button" class="tag ok" data-facet="status" data-val="shipped" aria-pressed="false">shipped</button> <button type="button" class="lvl lvl-hard" data-facet="effort" data-val="Hard" aria-pressed="false">Hard</button></span><div class="item-note">
+            <em><b>Shipped, with both branches of §5.5 working.</b> E is on the list by default, as specified. Six chords are pre-suggested as genuinely awkward — E, B♭, Bm, F♯m, Bdim, Edim — and any of the 32 can be added.</em>
+            <b>The rule:</b> a vamp containing an avoided chord is shown <em>with the substitution</em> if one exists, and hidden entirely if not. Silently dropping a chord from a four-chord loop would be worse than either.
+            <b>The substitutions are musical, not cosmetic.</b> Bdim → G7 and Edim → C7 both work because vii° <em>is</em> V7 without its root — the substitute contains every note of the chord it replaces. F♯m → A is the relative major. B♭ → B♭maj7 loses the half barre. E → E7 at <code>1202</code> is the PRD's own example.
+            <span class="spec"><b>Verified end to end in the browser.</b> Avoiding E turns the "Descent" preset into <code>Am G F E7 ✦</code>. Avoiding C — which has no substitute — hides 9 of the 17 vamps and surfaces the notice explaining why, leaving the 8 that use C7, Cmaj7 or no C at all.</span>
+          </div></div></li>
+
+          <li><input type="checkbox" data-id="ds-dataset" checked /><div class="item-body"><span class="item-title"><button type="button" class="item-toggle">1.10 — The dataset: 32 chords, 79 wiggles, machine-checked</button> <button type="button" class="tag p0" data-facet="priority" data-val="P0" aria-pressed="false">P0</button> <button type="button" class="tag ok" data-facet="status" data-val="shipped" aria-pressed="false">shipped</button> <button type="button" class="lvl lvl-epic" data-facet="effort" data-val="Epic" aria-pressed="false">Epic</button></span><div class="item-note">
+            <em><b>Shipped at 32 chords against the §7 estimate of "roughly 25", covering all seven keys plus the vii° of each and the borrowed dominant that makes each minor key work.</b> Hand-authored in <code>src/data/chords.ts</code> and meant to be edited — the shapes could be generated, the sentences could not.</em>
+            <b>192 assertions run on <code>pnpm test</code>.</b> Every shape's pitch classes must be a subset of the chord's tones; every tone must be present unless the shape declares it omitted; declared omissions must genuinely be absent; nothing may reach past the 7th fret; no stretch may exceed four frets; and no wiggle step may move more than two strings — past that it is a chord change, not a wiggle.
+            <b>It has already earned its keep.</b> Em <code>0402</code> was authored claiming to omit the 5th; the B on the 1st string is the 5th, so the claim was false. Caught on the first run, before it could teach anyone the wrong thing.
+            <span class="spec"><b>Tool:</b> <code>pnpm test</code>. Run it after editing the dataset — that is what it is for.</span>
+          </div></div></li>
+
+          <li><input type="checkbox" data-id="fb-shape-ring" checked /><div class="item-body"><span class="item-title"><button type="button" class="item-toggle">1.11 — Ring the shape you're holding on the big board</button> <button type="button" class="tag plain" data-facet="priority" data-val="extra" aria-pressed="false">extra</button> <button type="button" class="tag ok" data-facet="status" data-val="shipped" aria-pressed="false">shipped</button> <button type="button" class="lvl lvl-easy" data-facet="effort" data-val="Easy" aria-pressed="false">Easy</button></span><div class="item-note">
+            <em><b>Shipped. Not in the PRD, but it is the join the PRD's problem statement asks for</b> — "connect the chord I'm playing to the notes I should aim for". Selecting a voicing draws a white ring around exactly those dots, so the shape under your fingers and the target notes are visibly the same object rather than two diagrams that happen to be on the same screen.</em>
+          </div></div></li>
+        </ul>
+      </details>
+
+      <!-- ============ 2 · THE LOOP ============ -->
+      <details class="phase" open>
+        <summary>
+          <div class="phase-head">
+            <span class="ph-kicker" style="color: var(--vamp)">2 · The loop</span>
+            <p class="ph-title">Vamp player, metronome, tempo, now/next — PRD §9 Phase 2</p>
+          </div>
+        </summary>
+        <div class="progress"><i></i></div>
+        <div class="progress-label"></div>
+        <ul class="items">
+          <li><input type="checkbox" data-id="au-string" checked /><div class="item-body"><span class="item-title"><button type="button" class="item-toggle">2.1 — Karplus-Strong plucked string</button> <button type="button" class="tag p0" data-facet="priority" data-val="P0" aria-pressed="false">P0</button> <button type="button" class="tag ok" data-facet="status" data-val="shipped" aria-pressed="false">shipped</button> <button type="button" class="lvl lvl-hard" data-facet="effort" data-val="Hard" aria-pressed="false">Hard</button></span><div class="item-note">
+            <em><b>Shipped.</b> §5.4 sets the bar at "good enough to play along with, not good enough to record", and Karplus-Strong clears it for about four lines of arithmetic: a burst of filtered noise through a delay line one period long, averaged with itself each time round.</em>
+            <b>The two-point average is doing the work.</b> <code>0.5 × (x[n−N] + x[n−N−1])</code> is a lowpass, so high harmonics decay faster than low ones — which is what a real string does, and why this sounds like nylon rather than like an oscillator.
+            <b>The excitation is lowpassed too.</b> Raw white noise gives a harpsichord-ish zing; rolling the top off the initial burst is what makes it read as a ukulele.
+            <b>Buffers are rendered once per pitch and cached</b> — about a millisecond for two seconds of audio, so a fast strum costs nothing after the first time through a shape.
+            <b>Strums stagger by 16ms per string</b>, 4th to 1st for a down-strum, with each trailing string slightly quieter. Zero stagger is a chord stab, not a strum.
+          </div></div></li>
+
+          <li><input type="checkbox" data-id="au-scheduler" checked /><div class="item-body"><span class="item-title"><button type="button" class="item-toggle">2.2 — Lookahead scheduler, not a timer per beat</button> <button type="button" class="tag p0" data-facet="priority" data-val="P0" aria-pressed="false">P0</button> <button type="button" class="tag ok" data-facet="status" data-val="shipped" aria-pressed="false">shipped</button> <button type="button" class="lvl lvl-hard" data-facet="effort" data-val="Hard" aria-pressed="false">Hard</button></span><div class="item-note">
+            <em><b>Shipped, as §8 insists: "Scheduling via a lookahead timer, not <code>setTimeout</code> per beat — timing drift will make the vamp unusable."</b> Web Audio's clock schedules the sound to the sample; a 25ms timer only decides when to top the queue up, 200ms ahead.</em>
+            <b>The lookahead window is a trade.</b> Everything already queued keeps sounding after a tempo change or a stop, so 200ms is long enough to survive a stalled timer and short enough that pressing stop feels immediate.
+            <b>A starved timer re-anchors instead of catching up.</b> A background tab clamps <code>setInterval</code> to once a second and a sleeping laptop stops it entirely; without a guard the fill loop would then queue every missed beat at a time already in the past, and Web Audio fires those instantly — a burst of clicks all at once. It now skips the missed beats and snaps back to the beat grid, so the loop stays in phase.
+            <span class="spec"><b>Verified against the wall clock:</b> sampling the chord display over 13 seconds at 90bpm gave chord changes every 2.63s against an expected 2.667s — inside the 500ms sampling granularity.</span>
+            <span class="spec"><b>See also 5.1</b>, which is about the other half of this and was a real bug.</span>
+          </div></div></li>
+
+          <li><input type="checkbox" data-id="au-click" checked /><div class="item-body"><span class="item-title"><button type="button" class="item-toggle">2.3 — Metronome click, count-in, strum on each chord change</button> <button type="button" class="tag p0" data-facet="priority" data-val="P0" aria-pressed="false">P0</button> <button type="button" class="tag ok" data-facet="status" data-val="shipped" aria-pressed="false">shipped</button> <button type="button" class="lvl lvl-easy" data-facet="effort" data-val="Easy" aria-pressed="false">Easy</button></span><div class="item-note">
+            <em><b>Shipped.</b> Triangle-wave click at 1560Hz accented, 940Hz otherwise, with a 60ms exponential decay. The count-in accents every beat; once running, only the first beat of each chord is accented, so the click tells you where you are in the bar rather than just that time is passing.</em>
+            <b>All three are independently switchable</b> — click, chord strum, count-in. Playing against the strum teaches the harmony; playing against the click alone is harder and is the point after a few weeks.
+          </div></div></li>
+
+          <li><input type="checkbox" data-id="vp-tempo" checked /><div class="item-body"><span class="item-title"><button type="button" class="item-toggle">2.4 — Tempo 50–160 BPM, changeable mid-loop</button> <button type="button" class="tag p0" data-facet="priority" data-val="P0" aria-pressed="false">P0</button> <button type="button" class="tag ok" data-facet="status" data-val="shipped" aria-pressed="false">shipped</button> <button type="button" class="lvl lvl-easy" data-facet="effort" data-val="Easy" aria-pressed="false">Easy</button></span><div class="item-note">
+            <em><b>Shipped at exactly the §5.4 range.</b> Tempo and the sound toggles are pushed into the running scheduler rather than restarting it — you change tempo while playing, and a restart would drop you back into the count-in. Changing the chords themselves does restart, because there is no sensible place to land mid-loop.</em>
+          </div></div></li>
+
+          <li><input type="checkbox" data-id="vp-nownext" checked /><div class="item-body"><span class="item-title"><button type="button" class="item-toggle">2.5 — Big NOW / NEXT display</button> <button type="button" class="tag p0" data-facet="priority" data-val="P0" aria-pressed="false">P0</button> <button type="button" class="tag ok" data-facet="status" data-val="shipped" aria-pressed="false">shipped</button> <button type="button" class="lvl lvl-med" data-facet="effort" data-val="Medium" aria-pressed="false">Medium</button></span><div class="item-note">
+            <em><b>Shipped.</b> §5.4 calls NEXT "critically" important and it is right: the only reason to look up from the strings is to find out what is coming, and a chord you learn about on the beat it arrives is a chord you fluff. So NEXT carries the same weight as NOW, in amber — a colour that says <em>prepare</em> rather than <em>play</em>.</em>
+            <b>Names are short — "Am", not "A minor".</b> At arm's length from a music stand the short form reads instantly and the long one does not, and it is the form §6's own sketch uses. Derived from root plus quality suffix so it can't drift from the dataset.
+            <b>Beat dots below, with the downbeat wider.</b>
+            <span class="spec"><b>Fixed after looking at it:</b> while stopped this panel was showing the loop's first chord at full weight while the fretboard showed whichever chord you had picked to browse — two different large chord names competing on one screen. It now dims to 55% when stopped and the caption reads "the loop, when you press play".</span>
+          </div></div></li>
+
+          <li><input type="checkbox" data-id="vp-presets" checked /><div class="item-body"><span class="item-title"><button type="button" class="item-toggle">2.6 — Seventeen preset vamps, grouped by feel</button> <button type="button" class="tag p0" data-facet="priority" data-val="P0" aria-pressed="false">P0</button> <button type="button" class="tag ok" data-facet="status" data-val="shipped" aria-pressed="false">shipped</button> <button type="button" class="lvl lvl-med" data-facet="effort" data-val="Medium" aria-pressed="false">Medium</button></span><div class="item-note">
+            <em><b>Shipped — 17, against §10's guess of "12–15 before it feels like a real library".</b> Grouped by feel rather than by key, exactly as §10 asks: sunny, wistful, driving, old-time.</em>
+            <b>Every one of the seven keys appears at least twice</b>, and the I–vi–IV–V that §2 names as the success condition is the first item in the list.
+            <b>Two presets exist to exercise the avoid-list</b> rather than to be played: "Descent" (Am G F E) is the reason E is on the list by default, and "Pop four" in D contains Bm.
+          </div></div></li>
+
+          <li><input type="checkbox" data-id="vp-custom" checked /><div class="item-body"><span class="item-title"><button type="button" class="item-toggle">2.7 — Build your own vamp from 2–4 chords</button> <button type="button" class="tag p0" data-facet="priority" data-val="P0" aria-pressed="false">P0</button> <button type="button" class="tag ok" data-facet="status" data-val="shipped" aria-pressed="false">shipped</button> <button type="button" class="lvl lvl-med" data-facet="effort" data-val="Medium" aria-pressed="false">Medium</button></span><div class="item-note">
+            <em><b>Shipped — and it was very nearly missed.</b> §5.4 reads "Pick a progression from a preset list, <em>or build one from 2–4 chords</em>." The preset half went in early and the builder did not, and nothing surfaced the gap until §5.4 was read back against the finished app rather than against the plan. Worth remembering: the plan said "vamp player", and the vamp player worked.</em>
+            <b>The custom vamp is a <code>Progression</code> like any other,</b> which is the whole trick. It carries a <code>custom</code> feel, slots into the same dropdown under "Yours", and travels the identical resolve path — so the avoid-list applies to it for free rather than needing a second implementation that could disagree with the first.
+            <b>"+ Build your own…" seeds from the key's tonic and dominant</b> rather than starting empty. Two chords that already sound like a progression is a better place to begin editing than two blank slots. Adding a slot repeats the last chord, since you are about to change it anyway and a random pick would be a worse default than an obvious placeholder.
+            <span class="spec"><b>Verified in the browser:</b> seeds <code>C G</code> in the key of C, adds up to four and then hides the add button, persists to <code>customChords</code> across a reload, and setting the fourth slot to E — which is on the avoid-list — makes the dropdown read <code>Your vamp · C G Am E7 ✦</code>. Same substitution, same marker, same code path as a preset.</span>
+          </div></div></li>
+
+          <li><input type="checkbox" data-id="vp-space" checked /><div class="item-body"><span class="item-title"><button type="button" class="item-toggle">2.8 — Space bar starts and stops the loop</button> <button type="button" class="tag plain" data-facet="priority" data-val="extra" aria-pressed="false">extra</button> <button type="button" class="tag ok" data-facet="status" data-val="shipped" aria-pressed="false">shipped</button> <button type="button" class="lvl lvl-easy" data-facet="effort" data-val="Easy" aria-pressed="false">Easy</button></span><div class="item-note">
+            <em><b>Shipped. Not in the PRD, but you are holding an instrument</b> — reaching for a mouse to stop the loop means putting the uke down. Ignored while focus is in a control, so it never fights a dropdown or the tempo slider.</em>
+          </div></div></li>
+        </ul>
+      </details>
+
+      <!-- ============ 3 · THE POLISH ============ -->
+      <details class="phase" open>
+        <summary>
+          <div class="phase-head">
+            <span class="ph-kicker" style="color: var(--wiggles)">3 · The polish</span>
+            <p class="ph-title">Prompts, scale overlay, session memory, samples, iPad — PRD §9 Phase 3</p>
+          </div>
+        </summary>
+        <div class="progress"><i></i></div>
+        <div class="progress-label"></div>
+        <ul class="items">
+          <li><input type="checkbox" data-id="pp-prompts" checked /><div class="item-body"><span class="item-title"><button type="button" class="item-toggle">3.1 — Practice prompts</button> <button type="button" class="tag" data-facet="priority" data-val="P1" aria-pressed="false">P1</button> <button type="button" class="tag ok" data-facet="status" data-val="shipped" aria-pressed="false">shipped</button> <button type="button" class="lvl lvl-easy" data-facet="effort" data-val="Easy" aria-pressed="false">Easy</button></span><div class="item-note">
+            <em><b>Shipped.</b> Fourteen constraints across three levels, including all five §5.6 names. The level selector exists so the button stops handing you "root and 3rd only" in month three — not so there is a score.</em>
+            <b>Deliberately not gamified, per §5.6: "No streaks, no points."</b> Nothing is persisted, nothing is counted, and pressing again discards the last one. The only state is which level you asked for, and that resets with the session.
+          </div></div></li>
+
+          <li><input type="checkbox" data-id="sc-overlay" checked /><div class="item-body"><span class="item-title"><button type="button" class="item-toggle">3.2 — Scale overlay</button> <button type="button" class="tag" data-facet="priority" data-val="P1" aria-pressed="false">P1</button> <button type="button" class="tag ok" data-facet="status" data-val="shipped" aria-pressed="false">shipped</button> <button type="button" class="lvl lvl-easy" data-facet="effort" data-val="Easy" aria-pressed="false">Easy</button></span><div class="item-note">
+            <em><b>Shipped: major, natural minor, both pentatonics, mixolydian, blues, plus the chord's own parent scale as the default.</b></em>
+            <b>Kept secondary by construction, as §5.7 asks — "chord tones are the skill, scales are the filler".</b> The overlay only ever changes which notes appear as <em>ghosts</em>; it can never restyle a chord tone or add a dot that competes with one. So there is no setting that makes the scale louder than the chord.
+          </div></div></li>
+
+          <li><input type="checkbox" data-id="sm-memory" checked /><div class="item-body"><span class="item-title"><button type="button" class="item-toggle">3.3 — Session memory</button> <button type="button" class="tag" data-facet="priority" data-val="P2" aria-pressed="false">P2</button> <button type="button" class="tag ok" data-facet="status" data-val="shipped" aria-pressed="false">shipped</button> <button type="button" class="lvl lvl-easy" data-facet="effort" data-val="Easy" aria-pressed="false">Easy</button></span><div class="item-note">
+            <em><b>Shipped, taken literally.</b> §5.8: "Remember last vamp, tempo, tuning, and avoid-list in localStorage. Nothing else persists." So the view toggles — note names, interval isolation, scale overlay, look-ahead — deliberately start fresh every session. They are things you reach for <em>inside</em> a session, not settings you hold an opinion about between them.</em>
+            <b>Every read and write is wrapped.</b> Private browsing and cleared site data both throw rather than returning empty, and the app has to work with no storage at all.
+            <span class="spec"><b>If this turns out to be wrong in use</b> — if losing the scale overlay every session is annoying rather than clarifying — it is a one-line move from the session object to the persisted one. Worth actually noticing over a week before changing it.</span>
+          </div></div></li>
+
+          <li><input type="checkbox" data-id="au-samples" /><div class="item-body"><span class="item-title"><button type="button" class="item-toggle">3.4 — Sampled ukulele strums</button> <button type="button" class="tag" data-facet="priority" data-val="P2" aria-pressed="false">P2</button> <button type="button" class="tag verify" data-facet="status" data-val="open" aria-pressed="false">open</button> <button type="button" class="lvl lvl-hard" data-facet="effort" data-val="Hard" aria-pressed="false">Hard</button></span><div class="item-note">
+            <b>Open, and deliberately so.</b> §5.4 calls this "a Phase 3 upgrade" and the synth "fine for v1". Use the synth for a few weeks first — if the loop is already good enough to play against, this is cost with no benefit.
+            <b>The real cost is not the code.</b> Recording or licensing a clean multi-velocity strum set, then shipping it: even a modest set is several megabytes against the current ~87 KB gzipped, on a site whose whole appeal is that it opens instantly.
+            <span class="spec"><b>Target:</b> only worth starting if the synth is actually getting in the way. Decide by playing, not by listening to it in isolation.</span>
+            <span class="spec"><b>If it goes ahead, in order:</b></span>
+            <ol>
+              <li>One sample per open string, pitch-shifted per fret, before considering a full per-chord set.</li>
+              <li>Lazy-load on first play so the reference half still opens instantly.</li>
+              <li>Keep the synth as the fallback — it works offline and costs nothing.</li>
+            </ol>
+          </div></div></li>
+
+          <li><input type="checkbox" data-id="ip-ipad" /><div class="item-body"><span class="item-title"><button type="button" class="item-toggle">3.5 — iPad layout, on an actual music stand</button> <button type="button" class="tag" data-facet="priority" data-val="P2" aria-pressed="false">P2</button> <button type="button" class="tag verify" data-facet="status" data-val="open" aria-pressed="false">open</button> <button type="button" class="lvl lvl-med" data-facet="effort" data-val="Medium" aria-pressed="false">Medium</button></span><div class="item-note">
+            <b>Open.</b> §3 is clear this is not the target — "Nice if it works on an iPad on a music stand, but desktop is the target" — so this is a genuine P2, not a disguised blocker.
+            <b>What is already true:</b> the layout is a responsive grid that collapses to one column below 1024px, the fretboard scrolls horizontally rather than squashing below 760px, and every tap target is a real control. Nothing is desktop-only.
+            <b>What is unverified:</b> whether 7 frets at iPad width are legible from across a room, whether the wiggle cards are readable at one column, and whether hover-to-play does anything sensible under touch. None of that can be answered from a desktop browser at a simulated width.
+            <span class="spec"><b>Target:</b> chord names readable at about two metres; no horizontal scrolling of the page itself; the loop controls reachable without leaning in.</span>
+            <span class="spec"><b>Tool:</b> a real iPad on a real stand. A DevTools device emulation will not answer the legibility question, which is the only one that matters here.</span>
+          </div></div></li>
+        </ul>
+      </details>
+
+      <!-- ============ 4 · THE PRD'S OPEN QUESTIONS ============ -->
+      <details class="phase" open>
+        <summary>
+          <div class="phase-head">
+            <span class="ph-kicker" style="color: var(--dataset)">4 · Open questions</span>
+            <p class="ph-title">The four things PRD §10 left undecided</p>
+          </div>
+        </summary>
+        <div class="progress"><i></i></div>
+        <div class="progress-label"></div>
+        <ul class="items">
+          <li><input type="checkbox" data-id="oq-lookahead" checked /><div class="item-body"><span class="item-title"><button type="button" class="item-toggle">4.1 — Show the upcoming chord's tones a beat early?</button> <button type="button" class="tag ok" data-facet="status" data-val="shipped" aria-pressed="false">shipped</button> <button type="button" class="lvl lvl-easy" data-facet="effort" data-val="Easy" aria-pressed="false">Easy</button></span><div class="item-note">
+            <em><b>Answered with a switch rather than a guess.</b> §10: "Probably yes, but it might be visually noisy." Both halves of that are right, so "Look ahead one beat" is a toggle, default off.</em>
+            <b>Having built it: it is genuinely a bit noisy.</b> The whole board repaints on the last beat of every chord, which at 90bpm is every 2.7 seconds. Useful when you are learning a progression, distracting once you know it — which is exactly the kind of thing that should be a switch and not a decision made in a document.
+            <span class="spec"><b>Decide it by using it</b> for a week and seeing whether the toggle is ever on. If it never is, delete it.</span>
+          </div></div></li>
+
+          <li><input type="checkbox" data-id="oq-frets" /><div class="item-body"><span class="item-title"><button type="button" class="item-toggle">4.2 — Is 7 frets enough, or does it need 12?</button> <button type="button" class="tag verify" data-facet="status" data-val="open" aria-pressed="false">open</button> <button type="button" class="lvl lvl-med" data-facet="effort" data-val="Medium" aria-pressed="false">Medium</button></span><div class="item-note">
+            <b>Open, deferred exactly as §10 says — "Start at 7."</b> Every shape in the dataset fits, including the up-the-neck voicings, and the test suite enforces that so it cannot quietly stop being true.
+            <b>The change is cheap when it comes.</b> <code>FRET_COUNT</code> is one constant and the board geometry is computed from it; the scale-length maths already produces correct spacing at any fret count. The real work is the SVG getting narrower per fret, which is a legibility problem, not a maths one.
+            <span class="spec"><b>Decide it by this test:</b> when you find yourself wanting a note that is not on screen. Not before. Widening the board now would shrink every dot for a need nobody has felt yet.</span>
+          </div></div></li>
+
+          <li><input type="checkbox" data-id="oq-wiggle-audio" checked /><div class="item-body"><span class="item-title"><button type="button" class="item-toggle">4.3 — Do wiggles need audio in Phase 1?</button> <button type="button" class="tag ok" data-facet="status" data-val="shipped" aria-pressed="false">shipped</button> <button type="button" class="lvl lvl-easy" data-facet="effort" data-val="Easy" aria-pressed="false">Easy</button></span><div class="item-note">
+            <em><b>Moot, and the §10 instinct was still right.</b> The question was "is the diagram enough, and will the temptation to build audio early eat the whole project?" Since the build covered all three phases, the wiggles have audio.</em>
+            <b>The instinct held anyway:</b> the reference half was built first and works completely in silence. The <code>AudioContext</code> is created lazily on the first gesture, so nothing about the fretboard, chord tones or wiggle diagrams depends on audio existing. Had the project stopped at Phase 1, it would have been a complete tool.
+          </div></div></li>
+
+          <li><input type="checkbox" data-id="oq-preset-count" checked /><div class="item-body"><span class="item-title"><button type="button" class="item-toggle">4.4 — How many presets before it feels like a real library?</button> <button type="button" class="tag ok" data-facet="status" data-val="shipped" aria-pressed="false">shipped</button> <button type="button" class="lvl lvl-easy" data-facet="effort" data-val="Easy" aria-pressed="false">Easy</button></span><div class="item-note">
+            <em><b>Answered: 17, against the §10 guess of 12–15.</b> Organised by feel, as §10 specifies.</em>
+            <b>The count matters less than the coverage.</b> Seventeen is enough that every key appears twice and each of the four feels has at least three, which is what stops the list reading as a handful of examples. Adding more is nearly free — one object in <code>src/data/progressions.ts</code>, and the test suite checks the chord ids exist and the length is 2–4.
+          </div></div></li>
+        </ul>
+      </details>
+
+      <!-- ============ 5 · FOUND WHILE BUILDING ============ -->
+      <details class="phase" open>
+        <summary>
+          <div class="phase-head">
+            <span class="ph-kicker" style="color: var(--a11y)">5 · Found while building</span>
+            <p class="ph-title">Things the PRD could not have known, and one thing it got wrong</p>
+          </div>
+        </summary>
+        <div class="progress"><i></i></div>
+        <div class="progress-label"></div>
+        <ul class="items">
+          <li><input type="checkbox" data-id="fd-raf" checked /><div class="item-body"><span class="item-title"><button type="button" class="item-toggle">5.1 — <code>requestAnimationFrame</code> is the wrong clock for the beat display</button> <button type="button" class="tag p0" data-facet="priority" data-val="P0" aria-pressed="false">P0</button> <button type="button" class="tag ok" data-facet="status" data-val="shipped" aria-pressed="false">shipped</button> <button type="button" class="lvl lvl-hard" data-facet="effort" data-val="Hard" aria-pressed="false">Hard</button></span><div class="item-note">
+            <em><b>Fixed.</b> The standard recipe for a Web Audio scheduler — the one §8 is describing — pairs a lookahead timer for sound with <code>requestAnimationFrame</code> for the visuals, so a chord is painted when you hear it rather than when it was queued. That is the right instinct and the wrong tool.</em>
+            <b>Symptom:</b> the NOW display sat about three seconds behind the audio. Pressing play and waiting four seconds showed "count in 3", a moment that should have passed at 1.45s.
+            <b>Cause, measured rather than guessed:</b> a two-second probe counting both clocks returned <b>rAF at 1.4 frames per second while <code>setInterval</code> held its full 40/sec</b>, with <code>document.visibilityState === "visible"</code> and <code>document.hasFocus() === true</code>. rAF is throttled whenever the page is not painting normally — a background tab, a low-power display, an offscreen renderer — and it reports itself as perfectly healthy while doing so.
+            <b>Why it matters more here than in the recipe:</b> §5.4 makes NEXT "critically" the point of the display. A chord display that silently falls seconds behind the audio is worse than no display at all, because you trust it.
+            <b>Fix:</b> drain the beat queue on the scheduler's own 25ms timer. Beats are discrete events, so rAF's smoothness buys nothing — at the top tempo of 160bpm, 25ms is 6% of a beat and inaudible.
+            <span class="spec"><b>Verified after the change:</b> chord changes every 2.63s at 90bpm against an expected 2.667s, over a 13-second sample.</span>
+          </div></div></li>
+
+          <li><input type="checkbox" data-id="fd-tuning" checked /><div class="item-body"><span class="item-title"><button type="button" class="item-toggle">5.2 — The PRD is half-wrong about what the low-G toggle changes</button> <button type="button" class="tag ok" data-facet="status" data-val="shipped" aria-pressed="false">shipped</button> <button type="button" class="lvl lvl-med" data-facet="effort" data-val="Medium" aria-pressed="false">Medium</button></span><div class="item-note">
+            <b>§5.1 says: "the same shape gives you a different lowest note <em>and the chord tone map changes</em>." The first half is right. The second is not.</b>
+            <b>Why:</b> G3 and G4 are the same pitch class. Every dot on the board is a pitch class, so the entire interval map — which fret is the root, which is the 3rd, how many places each has — is <em>identical</em> in both tunings. Confirmed in the browser: toggling tuning leaves the chord-tone dot count at 9 and every label unchanged.
+            <b>What actually changes is register,</b> and that genuinely matters: in low-G the 4th string drops an octave, so the lowest sounding note of a shape is usually a different note. <code>0003</code> has C on the bottom in high-G and G on the bottom in low-G — the same chord, sitting on a different bass.
+            <b>So the toggle is real but the fretboard is the wrong place to look for it.</b> Rather than let an unchanged dot map imply the switch did nothing, the app states the register directly — an open-string readout under the board (<code>G4 C4 E4 A4</code> vs <code>G3 C4 E4 A4</code>), a "lowest note" line under each shape naming both the pitch and its interval, a fatter 4th string drawn in low-G, and a note in settings saying so in as many words.
+          </div></div></li>
+
+          <li><input type="checkbox" data-id="fd-contrast" checked /><div class="item-body"><span class="item-title"><button type="button" class="item-toggle">5.3 — Two contrast failures in the palette</button> <button type="button" class="tag ok" data-facet="status" data-val="shipped" aria-pressed="false">shipped</button> <button type="button" class="lvl lvl-easy" data-facet="effort" data-val="Easy" aria-pressed="false">Easy</button></span><div class="item-note">
+            <em><b>Fixed, after computing the ratios instead of trusting the design.</b></em>
+            <b><code>--color-dim</code> was <code>#626d7e</code> — 3.66:1 on the page ground and 3.05:1 on a panel, both under the 4.5:1 AA floor.</b> It is not decorative: it carries the fret numbers, the section headings, the open-string readout and the wiggle fret notation. Now <code>#808d9f</code>, at 5.69:1 and 4.74:1 — still visibly quieter than <code>--color-muted</code> above it, so the hierarchy survives.
+            <b>The ghost dots were <code>#39414e</code> at 1.64:1 on the board</b>, which is close to invisible, and they are meaningful content — the scale context §5.1 asks for. Now <code>#5e6a80</code> at 3.09:1, clearing the non-text threshold while staying 3× dimmer than a chord tone at 9.22:1, so they still cannot be mistaken for a target note.
+            <b>The interval colours all passed already</b> — 9.81, 6.04, 7.06 and 6.60:1 for the dot labels. Listed in the colour key above so a future palette change has something to check against.
+            <span class="spec"><b>Tool:</b> WCAG relative-luminance maths, run over the actual token values. Takes a minute and catches what looking at it does not.</span>
+          </div></div></li>
+
+          <li><input type="checkbox" data-id="fd-avoid-clobber" checked /><div class="item-body"><span class="item-title"><button type="button" class="item-toggle">5.4 — The avoid-list was overwriting your vamp choice</button> <button type="button" class="tag ok" data-facet="status" data-val="shipped" aria-pressed="false">shipped</button> <button type="button" class="lvl lvl-easy" data-facet="effort" data-val="Easy" aria-pressed="false">Easy</button></span><div class="item-note">
+            <em><b>Fixed.</b> When the avoid-list hid the vamp you were on, the app fell back to a playable one <em>and wrote that back to the store</em>. So avoiding a chord and then un-avoiding it left you stranded on the substitute, with your actual choice gone.</em>
+            <b>Found by using it, not by reading it</b> — toggling C on and off while testing §5.5 and noticing the vamp had silently become something else.
+            <b>Fix:</b> <code>progressionId</code> stays your choice; the fallback is computed for display and playback only. Un-avoiding the chord brings your vamp straight back.
+          </div></div></li>
+
+          <li><input type="checkbox" data-id="fd-em-omits" checked /><div class="item-body"><span class="item-title"><button type="button" class="item-toggle">5.5 — Em <code>0402</code> claimed an omission that wasn't there</button> <button type="button" class="tag ok" data-facet="status" data-val="shipped" aria-pressed="false">shipped</button> <button type="button" class="lvl lvl-easy" data-facet="effort" data-val="Easy" aria-pressed="false">Easy</button></span><div class="item-note">
+            <em><b>Caught by the test suite on its first run, which is the entire argument for having one.</b> The two-finger Em voicing was authored as omitting the 5th, with a note reading "loses the B, keeps the mood". The B is on the open 1st string. It omits nothing.</em>
+            <b>Why this class of error is worth machinery:</b> it is invisible by inspection, it sounds fine, and it would have taught the wrong thing indefinitely. The assertion that declared omissions must genuinely be absent costs four lines and catches every future instance.
+            <b>Related, and kept:</b> D7 <code>2020</code> and B7 <code>2320</code> really do omit their roots. They are marked <code>omits: ["R"]</code> and the app says so on screen, rather than quietly presenting a rootless voicing as the full chord.
+          </div></div></li>
+
+          <li><input type="checkbox" data-id="fd-a11y-pass" /><div class="item-body"><span class="item-title"><button type="button" class="item-toggle">5.6 — Full accessibility pass on real assistive tech</button> <button type="button" class="tag verify" data-facet="status" data-val="open" aria-pressed="false">open</button> <button type="button" class="lvl lvl-med" data-facet="effort" data-val="Medium" aria-pressed="false">Medium</button></span><div class="item-note">
+            <b>Open. What is done is not the same as what is verified.</b>
+            <b>Built in already:</b> every interval carries a text label so colour is never the only channel; contrast measured and fixed (5.3); chord-tone dots are focusable with Enter/Space to play and carry labels like "C4, the 3rd of C major, string E fret 0"; the settings drawer is a real <code>role="dialog"</code> with Escape to close and focus moved into it; focus-visible outlines throughout; <code>prefers-reduced-motion</code> honoured.
+            <b>Not verified:</b> a full keyboard traverse of the app, a VoiceOver run over the fretboard, and whether the SVG's per-dot labels are actually useful in sequence or just noise. Automated checks find roughly a third of accessibility problems; the rest needs ten minutes with the tools switched on.
+            <span class="spec"><b>Target:</b> reach and operate every control by keyboard alone; the fretboard comprehensible with the screen off.</span>
+            <span class="spec"><b>Tool:</b> VoiceOver (⌘F5) and a Tab-key pass. Axe DevTools for the floor.</span>
+          </div></div></li>
+        </ul>
+      </details>
+
+      <!-- ============ 6 · SHIP IT ============ -->
+      <details class="phase" open>
+        <summary>
+          <div class="phase-head">
+            <span class="ph-kicker" style="color: var(--deploy)">6 · Ship it</span>
+            <p class="ph-title">Vercel, the domain, and the first production deploy</p>
+          </div>
+        </summary>
+        <div class="progress"><i></i></div>
+        <div class="progress-label"></div>
+        <ul class="items">
+          <li><input type="checkbox" data-id="dp-repo" checked /><div class="item-body"><span class="item-title"><button type="button" class="item-toggle">6.1 — Public GitHub repo</button> <button type="button" class="tag ok" data-facet="status" data-val="shipped" aria-pressed="false">shipped</button> <button type="button" class="lvl lvl-easy" data-facet="effort" data-val="Easy" aria-pressed="false">Easy</button></span><div class="item-note">
+            <em><b>Shipped:</b> <code>github.com/patricktr/ukeprov</code>, public, default branch <code>main</code>.</em>
+          </div></div></li>
+
+          <li><input type="checkbox" data-id="dp-project" checked /><div class="item-body"><span class="item-title"><button type="button" class="item-toggle">6.2 — Vercel project and custom domain</button> <button type="button" class="tag ok" data-facet="status" data-val="shipped" aria-pressed="false">shipped</button> <button type="button" class="lvl lvl-med" data-facet="effort" data-val="Medium" aria-pressed="false">Medium</button></span><div class="item-note">
+            <em><b>Shipped.</b> Project <code>ukeprov</code> under the <b>Untitled Repo LLC</b> scope, framework preset Vite, build <code>pnpm build</code>, output <code>dist</code>, install <code>pnpm install</code>, Node 24.x.</em>
+            <b><code>wiggleroom.rousseau.nyc</code> is attached and verified with no DNS work needed</b> — <code>rousseau.nyc</code> is already on Vercel nameservers, so the A records were created automatically. <code>domainStatus: configured-correctly</code>, <code>misconfigured: false</code>, no outstanding issues.
+            <b>The certificate provisions on the first production deployment</b>, so the hostname has nothing to serve until 6.4 runs.
+            <b><code>.vercel/</code> and the <code>.env.local</code> the CLI wrote are both gitignored.</b> Worth knowing that <code>vercel link</code> creates a <code>VERCEL_OIDC_TOKEN</code> in <code>.env.local</code> without being asked.
+          </div></div></li>
+
+          <li><input type="checkbox" data-id="dp-git-connect" /><div class="item-body"><span class="item-title"><button type="button" class="item-toggle">6.3 — Connect the repo to Vercel for push-to-deploy</button> <button type="button" class="tag verify" data-facet="status" data-val="open" aria-pressed="false">open</button> <button type="button" class="lvl lvl-easy" data-facet="effort" data-val="Easy" aria-pressed="false">Easy</button></span><div class="item-note">
+            <b>Open, and left open on purpose.</b> Connecting the repo makes every push to <code>main</code> fire a production build, which is a decision about how you want to work rather than a setup step.
+            <span class="spec"><b>When you want it:</b> <code>vercel git connect git@github.com:patricktr/ukeprov.git</code></span>
+            <b>The alternative is deliberate deploys</b> — <code>vercel --prod</code> from the working tree when you mean it. For a single-user practice tool with no staging, that is arguably the better default.
+          </div></div></li>
+
+          <li><input type="checkbox" data-id="dp-first-deploy" /><div class="item-body"><span class="item-title"><button type="button" class="item-toggle">6.4 — First production deploy, and prove the domain serves</button> <button type="button" class="tag verify" data-facet="status" data-val="open" aria-pressed="false">open</button> <button type="button" class="lvl lvl-easy" data-facet="effort" data-val="Easy" aria-pressed="false">Easy</button></span><div class="item-note">
+            <b>Open until it has actually served a page.</b> The project and domain exist and are verified, but zero deployments have run, so the certificate has not been issued.
+            <span class="spec"><b>Target:</b> <code>https://wiggleroom.rousseau.nyc</code> loads the app over a valid certificate, the fretboard renders, and pressing play produces sound.</span>
+            <span class="spec"><b>Tool:</b> <code>vercel --prod</code>, then open the URL on a device that has never seen the site.</span>
+          </div></div></li>
+
+          <li><input type="checkbox" data-id="dp-bundle" checked /><div class="item-body"><span class="item-title"><button type="button" class="item-toggle">6.5 — Bundle stays small enough to open instantly</button> <button type="button" class="tag ok" data-facet="status" data-val="shipped" aria-pressed="false">shipped</button> <button type="button" class="tag verify" data-facet="status" data-val="measure" aria-pressed="false">measure</button> <button type="button" class="lvl lvl-easy" data-facet="effort" data-val="Easy" aria-pressed="false">Easy</button></span><div class="item-note">
+            <em><b>Measured on the production build, not estimated:</b> <b>281 KB of JS (87 KB gzipped)</b> and 17 KB of CSS (4.4 KB gzipped). Built in 312ms.</em>
+            <b>Comfortably inside a 100 KB gzipped budget</b>, and most of it is React itself. The chord dataset — 32 chords, 79 wiggles, every sentence — is a rounding error next to the framework.
+            <b>Worth re-checking if 3.4 goes ahead:</b> sampled strums would be measured in megabytes, and "open it, see the fretboard, play" is the product.
+            <span class="spec"><b>Tool:</b> <code>pnpm build</code> prints the numbers.</span>
+          </div></div></li>
+        </ul>
+      </details>
+
+      <footer>
+        <p>
+          <a href="https://github.com/patricktr/ukeprov">github.com/patricktr/ukeprov</a> ·
+          built from <code>ukulele-improv-prd.md</code> ·
+          run <code>pnpm test</code> after editing the chord dataset
+        </p>
+        <div class="src">
+          <span>Sources:</span>
+          <a href="https://developer.mozilla.org/en-US/docs/Web/API/Web_Audio_API">Web Audio API</a>
+          <a href="https://web.dev/articles/audio-scheduling">A Tale of Two Clocks — audio scheduling</a>
+          <a href="https://en.wikipedia.org/wiki/Karplus%E2%80%93Strong_string_synthesis">Karplus-Strong synthesis</a>
+          <a href="https://www.w3.org/WAI/WCAG22/Understanding/contrast-minimum">WCAG 2.2 — contrast minimum</a>
+          <a href="https://vite.dev/">Vite</a>
+        </div>
+      </footer>
+    </div>
+
+    <script>
+      (function () {
+        var KEY = "wiggleroom.roadmap.v1";
+        var state = {};
+        try { state = JSON.parse(localStorage.getItem(KEY) || "{}"); } catch (e) { state = {}; }
+
+        var boxes = Array.prototype.slice.call(document.querySelectorAll('input[type="checkbox"][data-id]'));
+
+        function persist() {
+          try { localStorage.setItem(KEY, JSON.stringify(state)); } catch (e) {}
+        }
+        function syncLi(box) {
+          var li = box.closest("li");
+          if (li) li.classList.toggle("checked", box.checked);
+        }
+        function updatePhase(phase) {
+          if (!phase) return;
+          var phaseBoxes = phase.querySelectorAll('input[type="checkbox"][data-id]');
+          var total = phaseBoxes.length, done = 0;
+          phaseBoxes.forEach(function (b) { if (b.checked) done++; });
+          var pct = total ? Math.round((done / total) * 100) : 0;
+          var bar = phase.querySelector(".progress > i");
+          var label = phase.querySelector(".progress-label");
+          if (bar) bar.style.width = pct + "%";
+          if (label) label.textContent = done + " / " + total + " complete";
+        }
+        function updateAll() {
+          document.querySelectorAll("details.phase").forEach(updatePhase);
+        }
+
+        // Re-apply `state` to every box. Absent an override, fall back to the box's
+        // committed `checked` attribute — the file is the shared source of truth.
+        function applyState() {
+          boxes.forEach(function (box) {
+            var id = box.getAttribute("data-id");
+            if (Object.prototype.hasOwnProperty.call(state, id)) box.checked = !!state[id];
+            else box.checked = box.hasAttribute("checked");
+            syncLi(box);
+          });
+          updateAll();
+        }
+
+        boxes.forEach(function (box) {
+          var id = box.getAttribute("data-id");
+          box.addEventListener("change", function () {
+            state[id] = box.checked;
+            persist();
+            syncLi(box);
+            updatePhase(box.closest("details.phase"));
+          });
+        });
+        applyState();
+
+        /* ---- Collapsible item detail ------------------------------------------ */
+        var EKEY = "wiggleroom.roadmap.expanded";
+        var expanded = {};
+        try { expanded = JSON.parse(localStorage.getItem(EKEY) || "{}"); } catch (e) { expanded = {}; }
+
+        function persistExpanded() {
+          try { localStorage.setItem(EKEY, JSON.stringify(expanded)); } catch (e) {}
+        }
+
+        /* setAttribute rather than `el.hidden = "until-found"` — the IDL property is
+           a boolean in browsers without until-found support and would coerce the
+           string to true, losing the distinction. */
+        function setOpen(li, open, doPersist) {
+          var note = li.querySelector(".item-note");
+          if (!note) return;
+          var title = li.querySelector(".item-toggle");
+          var box = li.querySelector("input[data-id]");
+          if (open) note.removeAttribute("hidden");
+          else note.setAttribute("hidden", "until-found");
+          if (title) title.setAttribute("aria-expanded", open ? "true" : "false");
+          if (doPersist && box) {
+            var key = box.getAttribute("data-id");
+            if (open) expanded[key] = 1; else delete expanded[key];
+            persistExpanded();
+          }
+        }
+
+        Array.prototype.forEach.call(document.querySelectorAll("ul.items li"), function (li, i) {
+          var note = li.querySelector(".item-note");
+          var title = li.querySelector(".item-toggle");
+          if (!note || !title) return;
+
+          var box = li.querySelector("input[data-id]");
+          var key = box && box.getAttribute("data-id");
+          if (!note.id) note.id = "note-" + (key || i);
+
+          /* No role or tabindex: this is a real <button>, so Enter and Space
+             already fire click. The tags are siblings rather than children for
+             the same reason — a button may not contain focusable controls. */
+          title.setAttribute("aria-controls", note.id);
+          setOpen(li, !!(key && expanded[key]), false);
+
+          title.addEventListener("click", function () {
+            setOpen(li, title.getAttribute("aria-expanded") !== "true", true);
+          });
+          /* Fires when find-in-page reveals a hidden="until-found" block, so the
+             chevron and aria state don't drift from what's on screen. */
+          note.addEventListener("beforematch", function () { setOpen(li, true, true); });
+        });
+
+        /* ---- sticky toolbar: pinned-state flag ----
+
+           `position: sticky` pins the bar at exactly top:0, so `top <= 0` *is* the
+           definition of pinned. The IntersectionObserver on the 1px sentinel is
+           only the trigger telling us to look — which keeps one source of truth
+           and lets the same check re-run after a layout change. */
+        var stickyBar = document.querySelector(".toolbar");
+        function updateStuck() {
+          if (stickyBar) stickyBar.classList.toggle("is-stuck", stickyBar.getBoundingClientRect().top <= 0.5);
+        }
+        (function () {
+          var sentinel = document.querySelector(".toolbar-sentinel");
+          if (!stickyBar || !sentinel || !("IntersectionObserver" in window)) return;
+          new IntersectionObserver(updateStuck, { threshold: [0, 1] }).observe(sentinel);
+        })();
+        updateStuck();
+
+        /* ---- keeping your place across a layout change ----
+
+           Hiding completed items or collapsing everything removes a lot of height,
+           and the browser keeps the scroll *offset*, not the content — so whatever
+           you were reading jumps somewhere else. Capture what is at the top of the
+           viewport first, put it back afterwards.
+
+           Anchors are items and phase headers, never the <details> wrapper: a
+           phase spans thousands of pixels and usually straddles the top edge, so
+           anchoring to one would preserve your offset from the phase's start
+           rather than from the item you were looking at. */
+        var ANCHOR_SEL = "ul.items > li, .phase > summary";
+
+        /* getClientRects() is empty for display:none, which is how both hidden
+           completed items and collapsed phases disappear. */
+        function isRendered(el) { return !!el && el.getClientRects().length > 0; }
+
+        /* Pinned, the bar covers the top of the viewport so the first visible
+           content starts below it. Unpinned it is ordinary content and the edge
+           is just 0. */
+        function topEdge() {
+          if (!stickyBar) return 0;
+          var r = stickyBar.getBoundingClientRect();
+          return r.top <= 0 ? r.bottom : 0;
+        }
+
+        function captureAnchor() {
+          var edge = topEdge();
+          var nodes = document.querySelectorAll(ANCHOR_SEL);
+          for (var i = 0; i < nodes.length; i++) {
+            if (!isRendered(nodes[i])) continue;
+            var r = nodes[i].getBoundingClientRect();
+            // First thing whose bottom clears the edge. Its top may be negative,
+            // and restoring that same negative keeps it pixel-identical.
+            if (r.bottom > edge + 1) return { el: nodes[i], top: r.top };
+          }
+          return null;
+        }
+
+        function restoreAnchor(a) {
+          if (!a) return;
+          var el = a.el;
+          /* The anchor itself can vanish — hiding completed items removes the very
+             row you were parked on. Fall forward to the next surviving anchor. */
+          if (!isRendered(el)) {
+            var all = Array.prototype.slice.call(document.querySelectorAll(ANCHOR_SEL));
+            for (var i = all.indexOf(el) + 1; i < all.length; i++) {
+              if (isRendered(all[i])) { el = all[i]; break; }
+            }
+            if (!isRendered(el)) return;
+          }
+          var delta = el.getBoundingClientRect().top - a.top;
+          if (!delta) return;
+          /* The sheet sets html { scroll-behavior: smooth }; animating a
+             correction makes the page appear to drift after the click. */
+          var html = document.documentElement;
+          var prev = html.style.scrollBehavior;
+          html.style.scrollBehavior = "auto";
+          window.scrollBy(0, delta);
+          html.style.scrollBehavior = prev;
+        }
+
+        /* Wrap any layout-changing action so the view stays put. The pinned state
+           is re-checked afterwards: removing a screenful of completed items can
+           shorten the page enough to unpin the bar, and the observer alone would
+           not notice a change it didn't scroll through. */
+        function keepingPlace(fn) {
+          var a = captureAnchor();
+          fn();
+          restoreAnchor(a);
+          updateStuck();
+        }
+
+        function setAllOpen(open) {
+          Array.prototype.forEach.call(document.querySelectorAll("ul.items li"), function (li) {
+            setOpen(li, open, false);
+          });
+          expanded = {};
+          if (open) {
+            Array.prototype.forEach.call(document.querySelectorAll("ul.items li input[data-id]"), function (b) {
+              if (b.closest("li").querySelector(".item-note")) expanded[b.getAttribute("data-id")] = 1;
+            });
+          }
+          persistExpanded();
+        }
+        document.getElementById("btn-expand").addEventListener("click", function () {
+          keepingPlace(function () { setAllOpen(true); });
+        });
+        document.getElementById("btn-collapse").addEventListener("click", function () {
+          keepingPlace(function () { setAllOpen(false); });
+        });
+
+        /* Hide-completed toggle, persisted separately from item state. */
+        var HKEY = "wiggleroom.roadmap.hideDone";
+        var hideToggle = document.getElementById("toggle-hide-done");
+        function applyHide() { document.body.classList.toggle("hide-done", hideToggle.checked); }
+        try { hideToggle.checked = localStorage.getItem(HKEY) === "1"; } catch (e) {}
+        applyHide();
+        hideToggle.addEventListener("change", function () {
+          try { localStorage.setItem(HKEY, hideToggle.checked ? "1" : "0"); } catch (e) {}
+          keepingPlace(applyHide);
+        });
+
+        /* ---- filtering by tag -------------------------------------------------
+
+           Every tag is a button carrying `data-facet` (priority / status / effort)
+           and `data-val`. Clicking one anywhere — in an item or in the palette —
+           toggles that value.
+
+           Combination rule: OR within a facet, AND across facets. Easy + Medium
+           widens (either effort); P0 + Easy narrows (both must hold). The
+           alternative — AND everywhere — makes "Easy or Medium" impossible to
+           express, which is the more common question of the two.
+
+           An item with no tag in a filtered facet does not match: filtering on
+           "Easy" and getting the untagged items back would defeat the point. */
+        var FKEY = "wiggleroom.roadmap.filters";
+        var FACETS = ["priority", "status", "effort"];
+        var filters = {};
+        try {
+          var saved = JSON.parse(localStorage.getItem(FKEY) || "{}");
+          FACETS.forEach(function (f) { filters[f] = Array.isArray(saved[f]) ? saved[f] : []; });
+        } catch (e) { FACETS.forEach(function (f) { filters[f] = []; }); }
+
+        function persistFilters() {
+          try { localStorage.setItem(FKEY, JSON.stringify(filters)); } catch (e) {}
+        }
+        function anyFilter() {
+          return FACETS.some(function (f) { return filters[f].length > 0; });
+        }
+
+        /* Tag buttons inside the list. The palette is built from these, so the two
+           can never disagree about what tags exist. */
+        var itemTags = Array.prototype.slice.call(
+          document.querySelectorAll('ul.items li [data-facet][data-val]')
+        );
+
+        function tagsOf(li) {
+          return Array.prototype.slice.call(li.querySelectorAll("[data-facet][data-val]"))
+            .map(function (b) { return { facet: b.getAttribute("data-facet"), val: b.getAttribute("data-val") }; });
+        }
+
+        function matches(li) {
+          var mine = tagsOf(li);
+          return FACETS.every(function (f) {
+            if (!filters[f].length) return true;
+            return mine.some(function (t) { return t.facet === f && filters[f].indexOf(t.val) !== -1; });
+          });
+        }
+
+        var filterBar = document.getElementById("filter-bar");
+        var filterCount = document.getElementById("filter-count");
+        var clearBtn = document.getElementById("btn-clear-filters");
+
+        /* Values collected in document order rather than sorted, so the chips read
+           in roughly the order the tags are used in the list. */
+        (function buildPalette() {
+          var seen = {}, order = { priority: [], status: [], effort: [] };
+          itemTags.forEach(function (b) {
+            var f = b.getAttribute("data-facet"), v = b.getAttribute("data-val");
+            var k = f + " " + v;
+            if (seen[k] || !order[f]) return;
+            seen[k] = 1;
+            order[f].push({ val: v, cls: b.className });
+          });
+          var LABEL = { priority: "Priority", status: "Status", effort: "Effort" };
+          FACETS.forEach(function (f) {
+            if (!order[f].length) return;
+            var lab = document.createElement("span");
+            lab.className = "facet-label";
+            lab.textContent = LABEL[f];
+            filterBar.appendChild(lab);
+            order[f].forEach(function (t) {
+              var b = document.createElement("button");
+              b.type = "button";
+              b.className = t.cls;
+              b.setAttribute("data-facet", f);
+              b.setAttribute("data-val", t.val);
+              b.setAttribute("aria-pressed", "false");
+              b.textContent = t.val;
+              filterBar.appendChild(b);
+            });
+          });
+        })();
+
+        /* Reflect state onto every chip, in the palette and the list alike. */
+        function syncChips() {
+          Array.prototype.forEach.call(
+            document.querySelectorAll("[data-facet][data-val]"),
+            function (b) {
+              var f = filters[b.getAttribute("data-facet")];
+              if (!f) return;
+              b.setAttribute("aria-pressed", f.indexOf(b.getAttribute("data-val")) !== -1 ? "true" : "false");
+            }
+          );
+        }
+
+        function applyFilters() {
+          var shown = 0, total = 0;
+          document.querySelectorAll("details.phase").forEach(function (phase) {
+            var visible = 0;
+            phase.querySelectorAll("ul.items > li").forEach(function (li) {
+              total++;
+              var ok = matches(li);
+              li.classList.toggle("filtered-out", !ok);
+              /* Counts what the filter allows, independent of Hide completed —
+                 otherwise the two toggles would each change the other's number. */
+              if (ok) { visible++; shown++; }
+            });
+            phase.classList.toggle("filtered-empty", visible === 0 && anyFilter());
+          });
+
+          var emptyNote = document.getElementById("filter-empty");
+          if (emptyNote) emptyNote.hidden = !(anyFilter() && shown === 0);
+
+          if (anyFilter()) {
+            filterCount.textContent = "showing " + shown + " of " + total;
+            clearBtn.disabled = false;
+            /* A filtered phase left shut would look like it had no matches. */
+            document.querySelectorAll("details.phase:not(.filtered-empty)").forEach(function (p) { p.open = true; });
+          } else {
+            filterCount.textContent = "";
+            clearBtn.disabled = true;
+          }
+          syncChips();
+        }
+
+        /* One delegated listener for every chip everywhere. */
+        document.addEventListener("click", function (e) {
+          var b = e.target.closest && e.target.closest("[data-facet][data-val]");
+          if (!b) return;
+          e.preventDefault();
+          var f = b.getAttribute("data-facet"), v = b.getAttribute("data-val");
+          if (!filters[f]) return;
+          var at = filters[f].indexOf(v);
+          if (at === -1) filters[f].push(v); else filters[f].splice(at, 1);
+          persistFilters();
+          keepingPlace(applyFilters);
+        });
+
+        function clearFilters() {
+          FACETS.forEach(function (f) { filters[f] = []; });
+          persistFilters();
+          keepingPlace(applyFilters);
+        }
+        clearBtn.addEventListener("click", clearFilters);
+        document.getElementById("btn-clear-filters-2").addEventListener("click", clearFilters);
+
+        applyFilters();
+
+        /* Shared-state sync. localStorage is per-browser and cannot sync on its
+           own, so progress travels as a snapshot you copy/paste — or hand to
+           Claude to bake into the committed file, which everyone then loads. */
+        document.getElementById("btn-export").addEventListener("click", function () {
+          var snap = JSON.stringify(state);
+          if (navigator.clipboard && navigator.clipboard.writeText) {
+            navigator.clipboard.writeText(snap).then(
+              function () { alert("Progress copied to clipboard.\nPaste it in the other browser (Paste progress), or give it to Claude to bake into the file."); },
+              function () { window.prompt("Copy this progress snapshot:", snap); }
+            );
+          } else {
+            window.prompt("Copy this progress snapshot:", snap);
+          }
+        });
+        document.getElementById("btn-import").addEventListener("click", function () {
+          var input = window.prompt("Paste a progress snapshot:");
+          if (!input) return;
+          try {
+            var incoming = JSON.parse(input);
+            Object.keys(incoming).forEach(function (k) { state[k] = !!incoming[k]; });
+            persist();
+            applyState();
+          } catch (e) { alert("Couldn't read that snapshot."); }
+        });
+        document.getElementById("btn-reset").addEventListener("click", function () {
+          if (!window.confirm("Clear local checkmarks and show the state saved in the file?")) return;
+          state = {};
+          try { localStorage.removeItem(KEY); } catch (e) {}
+          applyState();
+        });
+      })();
+    </script>
+  </body>
+</html>

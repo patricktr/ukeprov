@@ -1,4 +1,4 @@
-import { useRef } from 'react'
+import { useCallback, useRef } from 'react'
 import {
   FRET_COUNT,
   STRING_LABELS,
@@ -96,14 +96,14 @@ export function Fretboard({
 
   const inShape = (p: Position) => shape?.[p.string] === p.fret
 
-  const hover = (p: Position) => {
+  const hover = useCallback((p: Position) => {
     if (!isAudioReady()) return
     const key = `${p.string}:${p.fret}`
     const now = performance.now()
     if (lastHover.current.key === key && now - lastHover.current.at < 140) return
     lastHover.current = { key, at: now }
     playNote(p.midi, { gain: 0.36 })
-  }
+  }, [])
 
   return (
     <div className="scroll-x w-full">

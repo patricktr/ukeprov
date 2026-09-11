@@ -25,6 +25,14 @@ export interface ToolbarProps {
   avoid: string[]
 }
 
+const FEEL_LABELS: Record<string, string> = {
+  custom: 'Yours',
+  sunny: 'Sunny',
+  wistful: 'Wistful',
+  driving: 'Driving',
+  'old-time': 'Old-time',
+}
+
 const selectClass =
   'rounded-md border border-(--color-line-bright) bg-(--color-panel-2) px-2.5 py-2 text-sm text-(--color-text) transition-colors hover:border-(--color-muted) focus:border-(--color-role-root)'
 
@@ -94,11 +102,11 @@ export function Toolbar({
           onChange={(e) => onProgression(e.target.value)}
           className={selectClass}
         >
-          {(['sunny', 'wistful', 'driving', 'old-time'] as const).map((feel) => {
+          {(['custom', 'sunny', 'wistful', 'driving', 'old-time'] as const).map((feel) => {
             const group = progressions.playable.filter((r) => r.progression.feel === feel)
             if (!group.length) return null
             return (
-              <optgroup key={feel} label={feel === 'old-time' ? 'Old-time' : feel[0]!.toUpperCase() + feel.slice(1)}>
+              <optgroup key={feel} label={FEEL_LABELS[feel]}>
                 {group.map((r) => (
                   <option key={r.progression.id} value={r.progression.id}>
                     {r.progression.name} · {r.chords.map((c) => c.label).join(' ')}
@@ -108,6 +116,7 @@ export function Toolbar({
               </optgroup>
             )
           })}
+          <option value="custom-new">+ Build your own…</option>
         </select>
       </label>
 

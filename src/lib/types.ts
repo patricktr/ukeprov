@@ -67,8 +67,8 @@ export interface Chord {
 export interface Progression {
   id: string
   name: string
-  /** PRD §10: organised by feel rather than by key. */
-  feel: 'sunny' | 'wistful' | 'driving' | 'old-time'
+  /** PRD §10: organised by feel rather than by key. 'custom' is the one you built. */
+  feel: 'sunny' | 'wistful' | 'driving' | 'old-time' | 'custom'
   key: string
   /** Roman numerals, for the people who think that way. */
   numerals: string

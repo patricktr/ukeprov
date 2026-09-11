@@ -1,4 +1,4 @@
-import { useCallback, useEffect, useRef, useState } from 'react'
+import { useCallback, useEffect, useState } from 'react'
 import { VampScheduler, type VampState, type VampStep } from '../audio/scheduler'
 import type { Tuning } from '../lib/music'
 
@@ -28,24 +28,27 @@ export interface UseVampOptions {
  */
 export function useVamp(options: UseVampOptions) {
   const [state, setState] = useState<VampState>(IDLE)
-  const scheduler = useRef<VampScheduler | null>(null)
 
-  if (!scheduler.current) {
-    scheduler.current = new VampScheduler(
-      {
+  // Lazy initialiser rather than a ref written during render: it runs exactly
+  // once, and the options below are immediately superseded by the effect.
+  const [scheduler] = useState(
+    () =>
+      new VampScheduler({
         steps: options.steps,
         bpm: options.bpm,
         tuning: options.tuning,
         countInBeats: options.countIn ? 4 : 0,
         metronome: options.metronome,
         chordSound: options.chordSound,
-      },
-      setState,
-    )
-  }
+      }),
+  )
 
   useEffect(() => {
-    scheduler.current?.update({
+    scheduler.setListener(setState)
+  }, [scheduler])
+
+  useEffect(() => {
+    scheduler.update({
       steps: options.steps,
       bpm: options.bpm,
       tuning: options.tuning,
@@ -60,18 +63,17 @@ export function useVamp(options: UseVampOptions) {
     options.countIn,
     options.metronome,
     options.chordSound,
+    scheduler,
   ])
 
-  useEffect(() => () => scheduler.current?.stop(), [])
+  useEffect(() => () => scheduler.stop(), [scheduler])
 
   const toggle = useCallback(() => {
-    const s = scheduler.current
-    if (!s) return
-    if (state.running) s.stop()
-    else s.start()
-  }, [state.running])
+    if (state.running) scheduler.stop()
+    else scheduler.start()
+  }, [state.running, scheduler])
 
-  const stop = useCallback(() => scheduler.current?.stop(), [])
+  const stop = useCallback(() => scheduler.stop(), [scheduler])
 
   return { state, toggle, stop }
 }

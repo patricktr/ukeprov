@@ -10,7 +10,8 @@ import {
   pitchClassOf,
 } from './lib/music'
 import { resolveProgression, toSteps } from './lib/vamp'
-import { useStore } from './state/store'
+import type { Progression } from './lib/types'
+import { useStore } from './state/useStore'
 import { useVamp } from './state/useVamp'
 import { Fretboard } from './components/Fretboard'
 import { Toolbar } from './components/Toolbar'
@@ -19,18 +20,45 @@ import { ChordTonePanel } from './components/ChordTonePanel'
 import { WiggleLibrary } from './components/WiggleLibrary'
 import { PracticePromptCard } from './components/PracticePrompt'
 import { SettingsPanel } from './components/SettingsPanel'
+import { VampBuilder } from './components/VampBuilder'
 
 const CHORDS_BY_ID = new Map(CHORDS.map((c) => [c.id, c]))
 
 export default function App() {
   const store = useStore()
   const [settingsOpen, setSettingsOpen] = useState(false)
-  const [shapeIndex, setShapeIndex] = useState(0)
+  // Keyed by chord rather than reset in an effect: changing chord should show
+  // its first voicing, and deriving that during render avoids the cascading
+  // second render a setState-in-effect would cause.
+  const [shapePick, setShapePick] = useState({ chordId: 'C', index: 0 })
 
   // --- the vamp ------------------------------------------------------------
+
+  /**
+   * The vamp you built (PRD §5.4) is just another Progression, so it travels the
+   * same resolve/substitute/hide path as the presets and the avoid-list applies
+   * to it for free.
+   */
+  const customProgression = useMemo<Progression | null>(() => {
+    const ids = store.customChords
+    if (!ids || ids.length < 2) return null
+    return {
+      id: 'custom',
+      name: 'Your vamp',
+      feel: 'custom',
+      key: store.keyId,
+      numerals: '',
+      chords: ids,
+      note: 'Built here.',
+    }
+  }, [store.customChords, store.keyId])
+
   const resolvedAll = useMemo(
-    () => PROGRESSIONS.map((p) => resolveProgression(p, CHORDS_BY_ID, store.avoid)),
-    [store.avoid],
+    () =>
+      [...(customProgression ? [customProgression] : []), ...PROGRESSIONS].map((p) =>
+        resolveProgression(p, CHORDS_BY_ID, store.avoid),
+      ),
+    [store.avoid, customProgression],
   )
   const playable = useMemo(() => resolvedAll.filter((r) => !r.blocked), [resolvedAll])
   const hidden = useMemo(
@@ -69,8 +97,6 @@ export default function App() {
 
   const chord = CHORDS_BY_ID.get(displayedChordId) ?? CHORDS_BY_ID.get('C')!
 
-  useEffect(() => setShapeIndex(0), [displayedChordId])
-
   const positions = useMemo(() => {
     const rootPc = pitchClassOf(chord.root)
     const quality = QUALITIES[chord.quality]
@@ -83,6 +109,8 @@ export default function App() {
     )
   }, [chord, store.scaleOverlay, store.tuning])
 
+  const shapeIndex = shapePick.chordId === displayedChordId ? shapePick.index : 0
+  const setShapeIndex = (i: number) => setShapePick({ chordId: displayedChordId, index: i })
   const shape = chord.shapes[Math.min(shapeIndex, chord.shapes.length - 1)]!
 
   // --- chord picker groups --------------------------------------------------
@@ -94,6 +122,25 @@ export default function App() {
       rest: CHORDS.filter((c) => !ids.has(c.id)),
     }
   }, [store.keyId])
+
+  /**
+   * "+ Build your own…" seeds from the key's tonic and its dominant rather than
+   * starting empty — two chords that already sound like a progression is a
+   * better place to begin editing from than two blank slots.
+   */
+  const chooseProgression = (id: string) => {
+    if (id !== 'custom-new') {
+      store.set('progressionId', id)
+      return
+    }
+    if (!store.customChords || store.customChords.length < 2) {
+      const key = KEYS.find((k) => k.id === store.keyId)
+      const tonic = key?.chords[0] ?? 'C'
+      const dominant = (key?.mode === 'major' ? key.chords[4] : key?.chords[5]) ?? 'G'
+      store.set('customChords', [tonic, dominant])
+    }
+    store.set('progressionId', 'custom')
+  }
 
   /** Changing key moves you to its tonic and the first vamp that lives there. */
   const changeKey = (id: string) => {
@@ -128,7 +175,7 @@ export default function App() {
         onChord={(id) => store.set('chordId', id)}
         chordOptions={chordOptions}
         progressionId={resolved?.progression.id ?? ''}
-        onProgression={(id) => store.set('progressionId', id)}
+        onProgression={chooseProgression}
         progressions={{ playable, hidden }}
         bpm={store.bpm}
         onBpm={(n) => store.set('bpm', n)}
@@ -154,6 +201,15 @@ export default function App() {
         <div className="grid min-h-0 flex-1 gap-4 lg:grid-cols-2">
           <div className="flex min-h-0 flex-col gap-4 overflow-y-auto pr-1">
             <NowNext steps={steps} state={vamp.state} resolved={resolved} />
+            {resolved?.progression.id === 'custom' && store.customChords && (
+              <VampBuilder
+                chords={chordOptions}
+                value={store.customChords}
+                onChange={(ids) => store.set('customChords', ids)}
+                avoid={store.avoid}
+                keyName={KEYS.find((k) => k.id === store.keyId)?.name ?? store.keyId}
+              />
+            )}
             <ChordTonePanel
               chord={chord}
               positions={positions}

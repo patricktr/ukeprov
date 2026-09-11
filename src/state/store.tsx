@@ -1,13 +1,5 @@
-import {
-  createContext,
-  useCallback,
-  useContext,
-  useEffect,
-  useMemo,
-  useState,
-  type ReactNode,
-} from 'react'
-import type { ScaleId, Tuning } from '../lib/music'
+import { useCallback, useEffect, useMemo, useState, type ReactNode } from 'react'
+import { StoreCtx, type AppState, type Persisted } from './context'
 
 /**
  * Session memory (PRD §5.8): "Remember last vamp, tempo, tuning, and
@@ -19,15 +11,6 @@ import type { ScaleId, Tuning } from '../lib/music'
  * them.
  */
 const STORAGE_KEY = 'wiggle-room:v1'
-
-interface Persisted {
-  tuning: Tuning
-  bpm: number
-  progressionId: string
-  customChords: string[] | null
-  avoid: string[]
-  keyId: string
-}
 
 const DEFAULTS: Persisted = {
   tuning: 'high-g',
@@ -50,29 +33,6 @@ function load(): Persisted {
     return DEFAULTS
   }
 }
-
-export interface AppState extends Persisted {
-  chordId: string
-  showNoteNames: boolean
-  /** Isolate one interval, e.g. 4 for "show me only the 3rds" (PRD §5.2). */
-  isolate: number | null
-  scaleOverlay: ScaleId | null
-  metronome: boolean
-  chordSound: boolean
-  countIn: boolean
-  /** While the loop runs, the board shows whichever chord is sounding. */
-  followVamp: boolean
-  /** Switch the board to the next chord on the last beat of the current one. */
-  lookAhead: boolean
-}
-
-type Setters = {
-  set: <K extends keyof AppState>(key: K, value: AppState[K]) => void
-  toggleAvoid: (chordId: string) => void
-  reset: () => void
-}
-
-const Ctx = createContext<(AppState & Setters) | null>(null)
 
 export function StoreProvider({ children }: { children: ReactNode }) {
   const [persisted, setPersisted] = useState<Persisted>(load)
@@ -117,11 +77,5 @@ export function StoreProvider({ children }: { children: ReactNode }) {
     [persisted, session, set, toggleAvoid, reset],
   )
 
-  return <Ctx.Provider value={value}>{children}</Ctx.Provider>
-}
-
-export function useStore() {
-  const ctx = useContext(Ctx)
-  if (!ctx) throw new Error('useStore must be used inside StoreProvider')
-  return ctx
+  return <StoreCtx.Provider value={value}>{children}</StoreCtx.Provider>
 }
