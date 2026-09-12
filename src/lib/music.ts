@@ -91,18 +91,47 @@ const INTERVAL_DEGREE: Record<number, number> = {
   0: 1, 1: 2, 2: 2, 3: 3, 4: 3, 5: 4, 6: 5, 7: 5, 8: 5, 9: 6, 10: 7, 11: 7,
 }
 
-export function spellNote(rootName: string, interval: number): string {
+/** Semitones above the root for each degree of a major scale, 1-7. */
+export const MAJOR_BY_DEGREE = [0, 2, 4, 5, 7, 9, 11]
+
+/** Which degree an interval is normally written as, outside any scale context. */
+export const degreeOf = (interval: number) => INTERVAL_DEGREE[mod12(interval)] ?? 1
+
+/**
+ * Spell a note against an explicitly chosen degree.
+ *
+ * Needed because an interval alone does not always fix the degree: eight
+ * semitones is a ♯5 inside an augmented chord and a ♭6 walking up a minor
+ * scale, and the letter differs. Anything stepping through a scale knows the
+ * degree positionally and should say so.
+ */
+export function spellWithDegree(rootName: string, interval: number, degree: number): string {
   const letterIndex = LETTERS.indexOf(rootName[0]!.toUpperCase())
   const targetPc = mod12(pitchClassOf(rootName) + interval)
   if (letterIndex < 0) return noteName(targetPc)
 
-  const degree = INTERVAL_DEGREE[mod12(interval)] ?? 1
   const target = (letterIndex + degree - 1) % 7
   // How far the pitch sits from that letter's natural note, as a signed count
   // of accidentals: -1 is one flat, +1 one sharp.
   let offset = mod12(targetPc - LETTER_PC[target]!)
   if (offset > 6) offset -= 12
   return LETTERS[target]! + (offset >= 0 ? '♯'.repeat(offset) : '♭'.repeat(-offset))
+}
+
+export const spellNote = (rootName: string, interval: number) =>
+  spellWithDegree(rootName, interval, degreeOf(interval))
+
+/**
+ * How a degree is written relative to the major scale: "1", "♭3", "♯5".
+ * Comparing against the major scale is what turns the seventh note of C
+ * mixolydian into "♭7" rather than just "the seventh one".
+ */
+export function degreeLabel(interval: number, degree: number): string {
+  let diff = mod12(interval) - MAJOR_BY_DEGREE[degree - 1]!
+  if (diff > 6) diff -= 12
+  if (diff < -6) diff += 12
+  const marks = diff >= 0 ? '♯'.repeat(diff) : '♭'.repeat(-diff)
+  return marks + degree
 }
 
 /** The same, carrying the octave: "B♭4". */

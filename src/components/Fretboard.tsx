@@ -10,6 +10,7 @@ import {
   spellNoteAt,
 } from '../lib/music'
 import { isAudioReady, playNote } from '../audio/engine'
+import { roleColor } from '../lib/roles'
 
 /**
  * The fretboard (PRD §5.1). Horizontal, first 7 frets, four strings.
@@ -59,17 +60,6 @@ const dotX = (fret: number) => (fret === 0 ? 64 : (fretX(fret - 1) + fretX(fret)
 const GAUGES: Record<Tuning, number[]> = {
   'high-g': [2.1, 3.0, 2.4, 1.7],
   'low-g': [3.6, 3.0, 2.4, 1.7],
-}
-
-const ROLE_COLOR: Record<string, string> = {
-  R: 'var(--color-role-root)',
-  '3': 'var(--color-role-third)',
-  '♭3': 'var(--color-role-third)',
-  '5': 'var(--color-role-fifth)',
-  '♭5': 'var(--color-role-fifth)',
-  '♯5': 'var(--color-role-fifth)',
-  '♭7': 'var(--color-role-seventh)',
-  '7': 'var(--color-role-seventh)',
 }
 
 const ROLE_RADIUS: Record<string, number> = {
@@ -244,7 +234,7 @@ export function Fretboard({
           .filter((p) => p.isChordTone)
           .map((p) => {
             const dimmed = isolate !== null && p.interval !== isolate
-            const color = ROLE_COLOR[p.label] ?? 'var(--color-role-other)'
+            const color = roleColor(p.label)
             const r = ROLE_RADIUS[p.label] ?? 15
             const held = inShape(p)
             const name = spellNoteAt(chordRoot, p.interval, p.midi)

@@ -1,6 +1,7 @@
 import { useEffect, useRef } from 'react'
 import { shortChordName, type Chord } from '../lib/types'
 import type { Tuning } from '../lib/music'
+import { WhatAmILookingAt } from './WhatAmILookingAt'
 
 /**
  * Settings, with the avoid-list as the main event (PRD §5.5).
@@ -32,6 +33,8 @@ export interface SettingsPanelProps {
   lookAhead: boolean
   onLookAhead: (v: boolean) => void
   onReset: () => void
+  /** The chord the board is showing, so the guide can explain that one. */
+  chord: Chord
 }
 
 function Toggle({
@@ -147,6 +150,18 @@ export function SettingsPanel(props: SettingsPanelProps) {
         </header>
 
         <div className="min-h-0 flex-1 overflow-y-auto px-4 py-4">
+          {/* Collapsed by default and first in the drawer: a newcomer opening
+              settings to find help sees it immediately, while it costs a
+              returning user one line above the avoid-list they came for. */}
+          <details className="mb-4 rounded-lg border border-(--color-line) bg-(--color-panel-2) px-3 py-2">
+            <summary className="cursor-pointer text-sm font-semibold text-(--color-text)">
+              What am I looking at?
+            </summary>
+            <div className="mt-2 border-t border-(--color-line) pt-2">
+              <WhatAmILookingAt chord={props.chord} />
+            </div>
+          </details>
+
           <section>
             <h3 className="text-xs font-semibold tracking-[0.18em] text-(--color-dim) uppercase">
               Chords I&rsquo;m avoiding

@@ -16,22 +16,13 @@ import {
   spellNoteAt,
 } from '../lib/music'
 import { ensureAudio, strum } from '../audio/engine'
+import { roleColor } from '../lib/roles'
 
 /**
  * The chord tone browser (PRD §5.2). Plain text first — "C major: C E G — six
  * places in the first seven frets" — then the interval isolation buttons,
  * because "show me only the 3rds" is how the drilling actually happens.
  */
-
-const ROLE_VAR: Record<string, string> = {
-  R: 'var(--color-role-root)',
-  '3': 'var(--color-role-third)',
-  '♭3': 'var(--color-role-third)',
-  '5': 'var(--color-role-fifth)',
-  '♭5': 'var(--color-role-fifth)',
-  '♭7': 'var(--color-role-seventh)',
-  '7': 'var(--color-role-seventh)',
-}
 
 const NUMBER_WORDS = [
   'no',
@@ -115,9 +106,9 @@ export function ChordTonePanel({
               onClick={() => onIsolate(active ? null : iv)}
               className="rounded-md border px-3 py-1.5 text-sm font-semibold transition-colors"
               style={{
-                borderColor: active ? ROLE_VAR[label] : 'var(--color-line-bright)',
-                background: active ? ROLE_VAR[label] : 'transparent',
-                color: active ? '#14171d' : ROLE_VAR[label],
+                borderColor: active ? roleColor(label) : 'var(--color-line-bright)',
+                background: active ? roleColor(label) : 'transparent',
+                color: active ? '#14171d' : roleColor(label),
               }}
             >
               {label}

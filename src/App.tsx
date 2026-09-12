@@ -233,6 +233,7 @@ export default function App() {
         open={settingsOpen}
         onClose={() => setSettingsOpen(false)}
         chords={CHORDS}
+        chord={chord}
         avoid={store.avoid}
         onToggleAvoid={store.toggleAvoid}
         tuning={store.tuning}

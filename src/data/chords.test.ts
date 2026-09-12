@@ -12,6 +12,8 @@ import {
   pitchClassOf,
   shapePitchClasses,
   spellNote,
+  spellWithDegree,
+  SCALES,
 } from '../lib/music'
 
 const byId = new Map(CHORDS.map((c) => [c.id, c]))
@@ -216,6 +218,50 @@ describe('note spelling', () => {
     for (const chord of CHORDS) {
       const letters = QUALITIES[chord.quality].intervals.map((i) => spellNote(chord.root, i)[0])
       expect(new Set(letters).size, chord.id).toBe(letters.length)
+    }
+  })
+})
+
+describe('scale spelling for the guide panel', () => {
+  /**
+   * Each parent scale must use all seven letters exactly once. That is what
+   * makes a scale readable — B C D E F G A, never B C D E F F♯ A — and it is
+   * the property that forces degrees to come from position in the scale rather
+   * than from the interval. B locrian is the case that proves it: its ♭5 and
+   * ♭6 are six and eight semitones up, and the interval-to-degree table calls
+   * both of those a fifth, which would spell two notes on the letter F.
+   */
+  it.each(CHORDS)('$id — its parent scale uses each letter once', (chord) => {
+    const scale = SCALES[QUALITIES[chord.quality].parentScale].intervals
+    const spelled = scale.map((interval, i) => spellWithDegree(chord.root, interval, i + 1))
+    const letters = spelled.map((n) => n[0])
+    expect(new Set(letters).size, `${chord.id}: ${spelled.join(' ')}`).toBe(scale.length)
+  })
+
+  it('spells every scale note at the pitch it names', () => {
+    for (const chord of CHORDS) {
+      const root = pitchClassOf(chord.root)
+      const scale = SCALES[QUALITIES[chord.quality].parentScale].intervals
+      scale.forEach((interval, i) => {
+        expect(pitchClassOf(spellWithDegree(chord.root, interval, i + 1))).toBe(
+          mod12(root + interval),
+        )
+      })
+    }
+  })
+
+  it('agrees with spellNote on the chord tones themselves', () => {
+    // The guide's strip and the sidebar's tone list must never disagree about
+    // what a note is called.
+    for (const chord of CHORDS) {
+      for (const i of QUALITIES[chord.quality].intervals) {
+        const scale = SCALES[QUALITIES[chord.quality].parentScale].intervals
+        const at = scale.indexOf(mod12(i))
+        if (at < 0) continue
+        expect(spellWithDegree(chord.root, i, at + 1), `${chord.id} interval ${i}`).toBe(
+          spellNote(chord.root, i),
+        )
+      }
     }
   })
 })
