@@ -8,12 +8,12 @@ import {
   type ScaleId,
   type Tuning,
   bassPitchClass,
-  midiToName,
   mod12,
-  noteName,
   parseFrets,
   pitchClassOf,
   shapeMidi,
+  spellNote,
+  spellNoteAt,
 } from '../lib/music'
 import { ensureAudio, strum } from '../audio/engine'
 
@@ -73,10 +73,9 @@ export function ChordTonePanel({
   shapeIndex,
   onShapeIndex,
 }: ChordTonePanelProps) {
-  const preferFlats = chord.root.includes('♭')
   const rootPc = pitchClassOf(chord.root)
   const intervals = QUALITIES[chord.quality].intervals
-  const toneNames = intervals.map((i) => noteName(mod12(rootPc + i), preferFlats))
+  const toneNames = intervals.map((i) => spellNote(chord.root, i))
   const chordTones = positions.filter((p) => p.isChordTone)
 
   const shape = chord.shapes[Math.min(shapeIndex, chord.shapes.length - 1)]!
@@ -196,7 +195,7 @@ export function ChordTonePanel({
           <p className="mt-1 text-[13px] text-(--color-dim)">
             Lowest note{' '}
             <span className="font-mono text-(--color-muted)">
-              {midiToName(shapeMidi(parseFrets(shape.frets), tuning)[0]!, preferFlats)}
+              {spellNoteAt(chord.root, mod12(bass - rootPc), shapeMidi(parseFrets(shape.frets), tuning)[0]!)}
             </span>
             {' · '}
             {INTERVAL_LABELS[mod12(bass - rootPc)]} of the chord

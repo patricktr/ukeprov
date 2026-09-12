@@ -11,6 +11,7 @@ import {
   parseFrets,
   pitchClassOf,
   shapePitchClasses,
+  spellNote,
 } from '../lib/music'
 
 const byId = new Map(CHORDS.map((c) => [c.id, c]))
@@ -150,5 +151,71 @@ describe('progressions', () => {
 
   it('have unique ids', () => {
     expect(new Set(PROGRESSIONS.map((p) => p.id)).size).toBe(PROGRESSIONS.length)
+  })
+})
+
+describe('note spelling', () => {
+  /**
+   * Written out by hand from the degrees, not read off the implementation: the
+   * letter is fixed by the degree, so the ♭7 of C has to be a kind of B.
+   * Picking accidentals by looking at the root's own name got C7, Gm, Gm7 and
+   * Edim wrong, and each showed A♯ where the note is B♭.
+   */
+  const EXPECTED: Record<string, string[]> = {
+    C: ['C', 'E', 'G'],
+    C7: ['C', 'E', 'G', 'B♭'],
+    Cmaj7: ['C', 'E', 'G', 'B'],
+    D: ['D', 'F♯', 'A'],
+    D7: ['D', 'F♯', 'A', 'C'],
+    Dm: ['D', 'F', 'A'],
+    Dm7: ['D', 'F', 'A', 'C'],
+    E: ['E', 'G♯', 'B'],
+    E7: ['E', 'G♯', 'B', 'D'],
+    Em: ['E', 'G', 'B'],
+    F: ['F', 'A', 'C'],
+    Fmaj7: ['F', 'A', 'C', 'E'],
+    G: ['G', 'B', 'D'],
+    G7: ['G', 'B', 'D', 'F'],
+    Gm: ['G', 'B♭', 'D'],
+    Gm7: ['G', 'B♭', 'D', 'F'],
+    A: ['A', 'C♯', 'E'],
+    A7: ['A', 'C♯', 'E', 'G'],
+    Am: ['A', 'C', 'E'],
+    Bb: ['B♭', 'D', 'F'],
+    B7: ['B', 'D♯', 'F♯', 'A'],
+    Bm: ['B', 'D', 'F♯'],
+    'F#m': ['F♯', 'A', 'C♯'],
+    Bdim: ['B', 'D', 'F'],
+    Edim: ['E', 'G', 'B♭'],
+    'F#dim': ['F♯', 'A', 'C'],
+    'C#dim': ['C♯', 'E', 'G'],
+  }
+
+  it.each(Object.entries(EXPECTED))('%s spells its tones correctly', (id, expected) => {
+    const chord = byId.get(id)!
+    const spelled = QUALITIES[chord.quality].intervals.map((i) => spellNote(chord.root, i))
+    expect(spelled).toEqual(expected)
+  })
+
+  it('never changes the pitch it names', () => {
+    // Independent of which letter was chosen: whatever the spelling, it has to
+    // sound the note the interval actually is.
+    for (const chord of CHORDS) {
+      const root = pitchClassOf(chord.root)
+      for (const i of QUALITIES[chord.quality].intervals) {
+        expect(pitchClassOf(spellNote(chord.root, i)), `${chord.id} at interval ${i}`).toBe(
+          mod12(root + i),
+        )
+      }
+    }
+  })
+
+  it('uses a different letter for each tone of a chord', () => {
+    // Two tones sharing a letter (C and C♯, say) means a degree was skipped or
+    // doubled, which is the shape a spelling bug takes.
+    for (const chord of CHORDS) {
+      const letters = QUALITIES[chord.quality].intervals.map((i) => spellNote(chord.root, i)[0])
+      expect(new Set(letters).size, chord.id).toBe(letters.length)
+    }
   })
 })

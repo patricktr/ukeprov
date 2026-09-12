@@ -70,6 +70,45 @@ export const INTERVAL_LABELS: Record<number, string> = {
   11: '7',
 }
 
+/**
+ * Spelling a chord tone correctly.
+ *
+ * A note's letter is decided by its degree, not by which accidental is
+ * convenient. The ♭7 of C is B♭ and never A♯: counting C D E F G A B, the
+ * seventh letter up from C is B, so the note has to be some kind of B. They are
+ * the same pitch and not the same note, and for anyone learning what "♭7" means
+ * the difference is the whole point — a label reading ♭7 next to a name reading
+ * A♯ quietly teaches that the 7th of C is a kind of A.
+ *
+ * Picking sharps or flats by looking at the root's own name (which is what this
+ * replaced) gets C7 wrong, and Gm, Gm7 and Edim with it.
+ */
+const LETTERS = ['C', 'D', 'E', 'F', 'G', 'A', 'B']
+const LETTER_PC = [0, 2, 4, 5, 7, 9, 11]
+
+/** The degree each interval is written as. Mirrors INTERVAL_LABELS exactly. */
+const INTERVAL_DEGREE: Record<number, number> = {
+  0: 1, 1: 2, 2: 2, 3: 3, 4: 3, 5: 4, 6: 5, 7: 5, 8: 5, 9: 6, 10: 7, 11: 7,
+}
+
+export function spellNote(rootName: string, interval: number): string {
+  const letterIndex = LETTERS.indexOf(rootName[0]!.toUpperCase())
+  const targetPc = mod12(pitchClassOf(rootName) + interval)
+  if (letterIndex < 0) return noteName(targetPc)
+
+  const degree = INTERVAL_DEGREE[mod12(interval)] ?? 1
+  const target = (letterIndex + degree - 1) % 7
+  // How far the pitch sits from that letter's natural note, as a signed count
+  // of accidentals: -1 is one flat, +1 one sharp.
+  let offset = mod12(targetPc - LETTER_PC[target]!)
+  if (offset > 6) offset -= 12
+  return LETTERS[target]! + (offset >= 0 ? '♯'.repeat(offset) : '♭'.repeat(-offset))
+}
+
+/** The same, carrying the octave: "B♭4". */
+export const spellNoteAt = (rootName: string, interval: number, midi: number) =>
+  `${spellNote(rootName, interval)}${Math.floor(midi / 12) - 1}`
+
 /** Semitones from `rootPc` up to `pc`. */
 export const intervalFrom = (rootPc: number, pc: number) => mod12(pc - rootPc)
 

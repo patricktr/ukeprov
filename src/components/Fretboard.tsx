@@ -7,6 +7,7 @@ import {
   type Position,
   type Tuning,
   midiToName,
+  spellNoteAt,
 } from '../lib/music'
 import { isAudioReady, playNote } from '../audio/engine'
 
@@ -92,6 +93,8 @@ export interface FretboardProps {
   /** Ring the notes of the shape currently being held, if any. */
   shape?: FretArray | null
   chordName: string
+  /** The chord's root spelling, so tones are named by degree not by accident. */
+  chordRoot: string
 }
 
 export function Fretboard({
@@ -102,6 +105,7 @@ export function Fretboard({
   isolate,
   shape,
   chordName,
+  chordRoot,
 }: FretboardProps) {
   // Hovering a dot plays it, but only once you have already made a gesture
   // somewhere — browsers will not open an AudioContext on hover alone, and a
@@ -230,7 +234,7 @@ export function Fretboard({
                 onPointerDown={() => playNote(p.midi, { gain: 0.3 })}
                 className="cursor-pointer"
               >
-                <title>{`${midiToName(p.midi, preferFlats)} — ${p.label} (scale)`}</title>
+                <title>{`${spellNoteAt(chordRoot, p.interval, p.midi)} — ${p.label} (scale)`}</title>
               </circle>
             )
           })}
@@ -243,7 +247,7 @@ export function Fretboard({
             const color = ROLE_COLOR[p.label] ?? 'var(--color-role-other)'
             const r = ROLE_RADIUS[p.label] ?? 15
             const held = inShape(p)
-            const name = midiToName(p.midi, preferFlats)
+            const name = spellNoteAt(chordRoot, p.interval, p.midi)
             return (
               <g
                 key={`${p.string}-${p.fret}`}

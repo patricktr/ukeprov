@@ -195,6 +195,7 @@ export default function App() {
             isolate={store.isolate}
             shape={parseFrets(shape.frets)}
             chordName={chord.name}
+            chordRoot={chord.root}
           />
         </div>
 
